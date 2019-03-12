@@ -1,0 +1,65 @@
+\documentclass{article}
+\usepackage{subcaption}  
+\usepackage[demo]{graphicx}
+\begin{document}
+
+\hrule  %% just to illustrate width of text block
+
+%% Five subfigures, width 0.2\textwidth, 
+%% use "%" to assure no gap,
+%% set image widths to 0.95\textwidth
+\begin{figure}[h!]
+\begin{subfigure}{0.2\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{figa}
+\caption{First}
+\end{subfigure}%
+\begin{subfigure}{0.2\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{figb}
+\caption{Second}
+\end{subfigure}%
+\begin{subfigure}{0.2\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{figc}
+\caption{Third}
+\end{subfigure}%
+\begin{subfigure}{0.2\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{figd}
+\caption{Fourth}
+\end{subfigure}%
+\begin{subfigure}{0.2\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{fige}
+\caption{Fifth}
+\end{subfigure}
+\end{figure}
+
+%% Five subfigures, width 0.18\textwidth, 
+%% use "\hspace{\fill}" to maximize gaps,
+%% set image widths to 1\textwidth
+\begin{figure}[h!]
+\begin{subfigure}{0.18\textwidth}
+\includegraphics[width=1\textwidth]{figa}
+\caption{First}
+\end{subfigure}\hspace{\fill}
+\begin{subfigure}{0.18\textwidth}
+\includegraphics[width=1\textwidth]{figb}
+\caption{Second}
+\end{subfigure}\hspace{\fill}
+\begin{subfigure}{0.18\textwidth}
+\includegraphics[width=1\textwidth]{figc}
+\caption{Third}
+\end{subfigure}\hspace{\fill}
+\begin{subfigure}{0.18\textwidth}
+\includegraphics[width=1\textwidth]{figd}
+\caption{Fourth}
+\end{subfigure}\hspace{\fill}
+\begin{subfigure}{0.18\textwidth}
+\includegraphics[width=1\textwidth]{fige}
+\caption{Fifth}
+\end{subfigure}
+\end{figure}
+
+\end{document}

@@ -45,7 +45,6 @@
   eaffil={\emultiline[t]{School of Innovation and Entrepreneurship}},
   eauthor={Shiwei Yan},
   esupervisor={Professor Yuqun Zhang},
-  eassosupervisor={XXX},
   % 日期自动生成，若需指定按如下方式修改：
   edate={December, 2017},
   estudenttype={Master of Art},
@@ -57,14 +56,25 @@
 
 \begin{cabstract}
 
-摘要的字数（以汉字计），硕士学位论文一般为500 $\sim$ 1000字，博士学位论文为1000 $\sim$ 2000字，
-均以能将规定内容阐述清楚为原则，文字要精练，段落衔接要流畅。摘要页不需写出论文题目。
-英文摘要与中文摘要的内容应完全一致，在语法、用词上应准确无误，语言简练通顺。
-留学生的英文版博士学位论文中应有不少于3000字的“详细中文摘要”。
+近年来，得益于深度学习的发展，自动驾驶的研究与开发也取得了巨大的突破。国内外的许多公司都开发了自己的自动驾驶系统框架，譬如Google公司的Waymo，Baidu公司的Apollo和Tesla公司研制的Autopilot，其中最为人熟知的Autopilot已经成功的部署运行在了现实商用的Tesla轿车中。
 
-  关键词是为了文献标引工作、用以表示全文主要内容信息的单词或术语。关键词不超过 5
-  个，每个关键词中间用分号分隔。（模板作者注：关键词分隔符不用考虑，模板会自动处
-  理。英文关键词同理。）
+尽管各大公司都标榜如今的自动驾驶系统安全性能已经足够高，但是近一两年发生的几起自动驾驶车祸引起了人们对于自动驾驶系统安全性能的关注，下左图是于2018年3月23号，发生在美国加州山景城高速公路上的一起车祸，事后事故分析指出由于Autopilot未能识别灰色公路背景下的白色防护栏从而导致的车祸的发生。同样的右图也是由于Uber公司研制的自动驾驶系统的误判，于2017年发生在美国亚利桑那州天普城的一起车祸。
+
+\begin{figure}[h]
+  \centering
+  \subfigure[crash 1]{
+          \includegraphics[width=0.45\textwidth, height=4cm]{crash_t}
+  }
+  \subfigure[crash ２]{
+          \includegraphics[width=0.45\textwidth, height=4cm]{crash_u}
+  }
+  \caption{crashs}
+\end{figure}
+
+除了上述之外，近年来还陆续有自动驾驶相关的车祸发生，以上种种都表明当前的自动驾驶的安全性能并没有人们认为的那么高。为了提升自动驾驶系统的安全等级，工业界和学术界都在此做了很多研究，于2017年学术界在此领域先后发表了2篇重要的文章，DeepXplore\cite{DeepXplore}和DeepTest\cite{DeepTest}，DeepXplore提出了一套深度学习系统测试用例自动生成的框架。DeepTest延伸了DeepXplore的工作并将前者的方法成功的运用到了自动驾驶系统测试用例，即驾驶路况场景图，生成中，两者的工作都以现实的自动驾驶框架为测试对象，成功生成除了很多自动驾驶系统会误判的测试用例，这对提升自动驾驶系统的安全性能有着重大意义。
+
+基于DeepXplore和DeepTest的工作，我所在的实验室提出了DeepRoad\cite{DeepRoad},它借助对抗生成网络\cite{GAN}中的UNIT\cite{UNIT}框架提升了生成的自动驾驶测试用例，即驾驶场景图片的质量。在本论文中，我们做了针对现有的深度学习技术，主要包含对抗生成网络和图像风格转换技术，做了大量的实证研究，以探讨哪个已有的深度学习技术对于自动驾驶测试用例生成，即驾驶场景图片的合成，是最有效的。
+
 \end{cabstract}
 
 \begin{eabstract}
