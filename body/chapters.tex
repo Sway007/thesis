@@ -12,7 +12,7 @@
 
 数据集的具体数量跟模型处理的具体问题相关，一般来说，处理的问题越复杂，即数据的特征越多，需要的数据量也就越多，比如比较出名的ImageNet\cite{ImageNet}比赛，公开可用的数据集多达1500万张由人工标注的图片数据。深度学习技术对已有数据特征拟合的本质和其训练测试的过程导致其对数据量的严重依赖，传统的深度学习测试需要大量的人工收集、标注数据，着极度的增加了其中的人力成本。除此之外，传统的通过人工收集数据的方式有严重的缺点，即收集到的数据无法保证覆盖到了所有可能的极端场景，以自动驾驶测试数据集为例，人工收集的数据集一般是车载记录仪记录的道路驾驶视频图片，但一般大雨、大雪等极端天气场景数据很少也很难收集，这就给相应的极端场景自动驾驶系统测试带来了不确定性。
 
-\section{DeepXplore和DeepTest}[DeepXplore and DeepTest]
+\section{DeepXplore、DeepTest和DeepRoad}[DeepXplore DeepTest and DeepRoad]
 
 针对上诉问题，DeepXplore和DeepTest提出了深度学习系统测试用例自动生成系统来缓解深度学习系统对于数据量的依赖。
 
@@ -36,3 +36,51 @@ DeepXplore以神经元覆盖率和使得不同DNN系统输出不一致为目标�
 DeepTest基于DeepXplore的工作，提出了一套专门针对自动驾驶系统，能够自动检测出错误行为的测试系统。发生在自动驾驶系统上的车祸大部分都是发生在一些罕见的路况场景下，而传统的自动驾驶检测测试技术几乎是完全依赖大量的罕见路况场景图片的人工收集与标注，这不仅包含了大量的人工成本，重要的是人工收集的数据无法保证能够覆盖度到了所有的极端场景数据。这些极端场景就好像是传统软件中的bug，但是这些bug一旦被检测到，就可能通过把这些导致错误的输入重新放入训练集，同时改变一下模型的结构和参数来修复。DeepTest正是通过以上的思路来设计的一套自动测试系统。
 
 % 神经元覆盖率
+
+具体的实现上，DeepTest依旧借用DeepXplore提出的神经元覆盖率的概念，使用位移、拉伸、仿射以及直接修改像素的透明度等基本的图形变换的手段来合成新的驾驶图像，文章里提到合成后的数据能使原DNN系统的神经元覆盖率提升100\%\cite{DeepTest}，并以提升神经元覆盖率为目标，给出了一个优化算法\ref{alg1}，以获得最佳的图像混合变换,最后DeepTest在利用这些合成的新数据重新训练自动驾驶模型来提高模型对于极端场景的鲁棒性。
+
+\begin{algorithm}[h]
+    \small
+    \SetAlgoLined
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \SetKwInOut{Variable}{Variable}
+
+    \Input{变换Transformations T, 种子图像Seed Images I}
+    \Output{合成的测试数据图像}
+    \Variable{S: 存储新合成图像的栈; Tqueue: 存储变换的队列}
+
+    push all seed imgs to Stack S; 所有种子图片入栈\;
+    $genTests = \varnothing$\;
+    \While{S is not empty}{
+        img = S.pop()\;
+        $Tqueue = \varnothing$\;
+        numFailedTries = 0 \;
+        \While{$numFailedTries \leq maxFailedTries$}{
+            \eIf{$Tqueue\ is\ not\ empty$}{
+                T1 = Tqueue.deque()
+            }{
+                Randomly pick transformations T1 from T
+            }
+            Randomly pick parameter P1 for T1\;
+            Randomly pick transformation T2 from T\;
+            Randomly pick parameter P2 from T2\;
+            newImage = ApplyTransforms(image, T1, P1m T2, P2)\;
+            \eIf{covInc(newiamge)}{
+                Tqueue.enqueue(T1)
+                Tqueue.enqueue(T2)
+                UpdateCoverage()
+                $genTests=genTests \cup newiamge S.push(newImaghe)$
+            }{
+                $numFailedTries=numFailed++$
+            }
+        }
+    }
+    return genTests
+    \caption{混合变换优化算法}
+    \label{alg1}
+\end{algorithm}
+
+\subsection{DeepRoad}[DeepRoad]
+
+尽管DeepTest已经提出了一个较为完善的自动驾驶系统测试方案，但它有一个很严重的缺陷，
