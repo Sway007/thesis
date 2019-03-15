@@ -17,7 +17,7 @@
 针对上诉问题，DeepXplore和DeepTest提出了深度学习系统测试用例自动生成系统来缓解深度学习系统对于数据量的依赖。
 
 \subsection{DeepXplore}[DeepXplore]
-DeepXplore首先指出了深度学习系统与传统的软件开发系统的不同：传统软件的开发人员直接指定软件系统的逻辑，然而深度学习则是从数据特征中“学习、推到”它们的运行规则，甚至对于深度学习系统的开发费人员来说，他们都不一定清楚训练好的深度学习模型的确切运行逻辑。因此DeepXplore
+DeepXplore首先指出了深度学习系统与传统的软件开发系统的不同：传统软件的开发人员直接指定软件系统的逻辑，然而深度学习则是从数据特征中“学习、推到”它们的运行规则，甚至对于深度学习系统的开发人员来说，他们都不一定清楚训练好的深度学习模型的确切运行逻辑。因此DeepXplore
 不是直接寻找深度学习系统中的逻辑错误，而是通过自动产生、寻找一些能使多个同类深度学习系统做出不同行为判断的测试用例，然后并将这些找到的测试用例放回原训练数据集里重新训练模型，试图修正之前错误的行为
 
 除了将使不同的DNN系统做出不同预测行为为目标外，DeepXplore也借鉴了传统软件测试技术中的代码覆盖率的概念，为了使得尽可能测试整个DNN系统，DeepXplore引入了神经元覆盖率的概念，即测试用例测试过程中，在整个深度学习系统中，被“激活”，即输出值超过了某个阀值，的神经元的个数占整个网络结构神经元总数的占比。与代码覆盖率类似，我们期望神经元覆盖率越高越好。
@@ -77,10 +77,31 @@ DeepTest基于DeepXplore的工作，提出了一套专门针对自动驾驶系�
         }
     }
     return genTests
-    \caption{混合变换优化算法}
+    \caption{混合变换优化算法\cite{DeepTest}}
     \label{alg1}
 \end{algorithm}
 
 \subsection{DeepRoad}[DeepRoad]
 
-尽管DeepTest已经提出了一个较为完善的自动驾驶系统测试方案，但它有一个很严重的缺陷，
+\begin{figure}[t!]
+    \centering
+    \subfigure[DeepTest]{
+        \includegraphics[width = 0.7\textwidth]{deeptest_effect}
+    }
+    \subfigure[DeepRoad]{
+        \includegraphics[width = 0.7\textwidth]{deeproad_effect}
+    }
+    \label{deeptest_effect}
+    \caption{天气场景合成效果图比较}
+\end{figure}
+
+尽管DeepTest已经提出了一个较为完善的自动驾驶系统测试方案，以相对便宜和简洁的方法，利用大量的原始和合成出来的驾驶场景图片成功地检测出了许多自动驾驶系统前后不一致的驾驶行为，但它有一个很严重的缺陷：DeepTest用来合成图片的技术很难合成一些能够精确反映现实驾驶场景的图片，并且现实驾驶场景的图片也很难由一些基础的仿射、位移变换模拟合成出来，其用来模拟雨天、雾天的场景的技术仅仅是在原始图层上添加一层额外的图层，如下图\ref{deeptest_effect}所示，对于雾天，DeepTest仅仅是加了一层白色的图层，对于雨天，加了一层线条层。很明显这些合成图离现实中真实的驾驶场景有较大的差别。从另一个角度来说，即时用这些图检测出了自动驾驶系统错误的驾驶行为也很难有说服力，因为这些“出错”的场景在现实中根本不会出现。其实很多可能的真实的驾驶场景根本不能用一些简单的图像处理技术来模拟合成。
+
+为了能够自动地合成大量真实的驾驶场景图片，DeepRoad提出了一个半监督合成的框架，抛弃了DeepTest用到的简单的图像处理技术来合成图像，采用深度学习对抗生成网络的技术
+
+
+\chapter{实验}[Methodology]
+
+\chapter{发现与总结}[Findings and Conclusion]
+
+\chapter{相关研究}[Related Work]
