@@ -125,6 +125,29 @@ DeepRoad提出的将深度学习技术运用到自动驾驶系统测试用例合
 
 \chapter{实验}[Methodology]
 
+% metrics -> intro of every gan and experiment, show results
+
+为了尽可能地对所有能够实现图像风格变换的深度学习框架进行试验结果对比，我们首先调研了目前对图片合成图质量的量化评价指标，结合测试人员在实际测试过程中的各种成本以及实验细节，我们总结出了了3个指标: \textit{Fre ́chet Inception Distance(FID)}\cite{FID}，模型训练时长以及自动驾驶系统对于前后合成图行为判断方向盘拐角差。
+
+\section{评价指标}[Metrics]
+
+对于图像驾驶场景合成图的质量好坏，最直观也是最直接的方式就是比较合成图的视觉效果，但这种人为的评判是主观且十分容易误判的。为了能够客观、量化的比较各个DNN框架合成的驾驶场景图的好坏，学术界提出了两个指标：\textit{Inception Score(IS)}\cite{IS}和\textit{Fre ́chet Inception Distance(FID)}\cite{FID}。
+
+\textbf{Inception Score(IS).\cite{IS}}\quad IS评价合成图片质量是基于以下两点：(i) 包含有意义的物体图像的条件标记分布应该具有较低的熵(entropy)和(ii) 图像的多样性应该较高，进而边缘分布$\int_z p(y|x=G(z))dz$应该有较高的熵。
+将以上两点汇总成一个评分，
+\begin{center}
+    $IS(G)=\exp{(E_{x\sim G}[d_{KL}(p(y|x), p(y)])}$
+\end{center}
+IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终实验结果反映IS的分数与人工标注评价正相关。
+
+\textbf{Fre ́chet Inception Distance(FID).\cite{FID}}\quad FID提出了另一个评价方法，它首先将所有的合成图片放入一个特征空间，然后将该空间视为一个多元高斯分布，分别计算合成图和真实图的均值与方差，将两者高斯分布的Fre ́chet距离来量化真实图与合成图之间的距离，进而作为对合成图的评价：
+\begin{center}
+    $FID(x,g)=||\mu_x-\mu_g||_2^2+Tr(\sum_x + \sum_g - 2(\sum_x\sum_g)^{\frac{1}{2}})$
+\end{center}
+这里的$(\mu_x,\sum_x)$和$(\mu_g,\sum_g)$分别是数据分布和模型分布的均值和方差。FID的作者发现FID值与人类对合成图像的判断一直，并且较IS\cite{IS}鲁棒性更强。相对于IS，FID还能检测出不同类之间的区别，即如果每一种类别值产生合成一张图片，则很有可能获得比较高的IS分数，但对应的FID值却很低。基于以上几点，我们选用FID值作为我们后面实验评价合成图片质量的评价指标之一。
+
+% wc ~ 650
+
 \chapter{发现}[Findings]
 
 \chapter{相关研究}[Related Work]
