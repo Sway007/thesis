@@ -150,13 +150,81 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 \textbf{方向盘拐角差.}\quad 有了合成图质量的量化指标，模型的训练时间成本比较，最后我们还希望直观地看到合成图相比原始图对于自动驾驶系统行为判断(方向盘拐角信号)的影响。理想情况下，只变换驾驶场景图片的风格，比如晴天的路况转换为夜晚、雨天或者阴天的路况，自动驾驶系统对于大部分的转换后的图像的行为判断，即输出的方向盘拐角信号，与原始的驾驶路况图片做出的行为判断应该几乎一致，或者差别不大。实验中我们对两者的信号，即拐角差设置了一个阈值$\alpha=5^{\circ}$，我们希望小于阈值的图片占比越小越小，最后我们以两者之间拐角差的方差作为该指标的量化数据。
 
+综上述，在后面的实验中，我们将统计所有实验模型的\textbf{FID值}、\textbf{模型训练时长}和\textbf{方向盘拐角差}3个指标。
+
 % wc ~ 1400
 
-\section{模型的筛选与实验}[Model Filting and Experiment]
+\section{模型的筛选与实验}[Model Filting and Experiments]
 
+基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，下面简单的介绍一下对抗生成网络的背景以及选择的对应模型。
+
+\subsection{对抗生成网络大类}[Generative Adversarial Network Class]
+
+对抗生成网络\cite{GAN}首先由Ian J. Goodfellow等人提出，它的本质是模拟真实数据源的概率分布。其基本框架有两个神经网络组成：生成模型网络和判别模型网络，其中判别模型负责学习区分数据是否来自真实数据分布，而生成模型可以想象成一个制造伪币的团伙，试图产生能够通过货币监测的钞票，判别模型正是这个对抗游戏中的警察，试图甄别出货币中的假钞。整个对抗生成网络模型的训练过程就是对抗模型和生成模型的训练竞赛，整个训练过程直到判别模型再也区分不出数据是来自真实数据分布还是生成模型伪造的数据为止。
+
+训练过程中，对抗模型一般使用向后传播算法，而判别模型一般使用向前传播算法。其中判别模型为了通过数据$x$学习生成器的数据分布$p_g$，可以基于输入的噪声数据定义一个先验概率$p_z(z)$，然后将整个数据空间表示为$G(Z;\theta_g)$，这里的$G$是一个参数为$\theta$的多层神经网络可微函数。再定义一个输出为一个单向量的多层神经元网络$D(x;\theta_d)$，其中$D(x)$表示数据$x$来自真实数据而非$p_g$的概率。我们训练$D$直到我们对所有数据正确标记其是否来自判别器的概率最大为止。同时也训练$G$来最小化$\log(1-D(G(z)))$。上述可总结成下面的公式:
+\begin{equation}
+    \label{eq:gan}
+    \min_G\max_DV(D,G)=\xi_{x\sim p_{data}(x)}[\log D(x)]+\xi_{z\sim p_z(z)}[\log(1-D(z))]
+\end{equation}
+实际训练过程中，等式\eqref{eq:gan}中的生成器$G$可能会出现梯度消失的问题，但由于本文章不是对对抗生成网络算法的研究，所以就不在此展开了。
+
+为了对目前所有的对抗生成网络技术能有一个综合的认识，我们主要参考了文献\cite{gan-survey}，跟据文献中的分类，依次对每种类型中比较典型的框架进行了实验与数据总结统计。
+
+% TODO: confirm this
+\textbf{统一说明}，本文后续所有的实验均是在64位Ubuntu操作系统，8核1080ti-GPU硬件环境下进行的。
+
+\subsubsection{一般的对抗生成网络}[General GANs]
+
+这类框架的没有特别指定的应用场景，通常是对模型架构上做出了一些优化，其中比较有代表性的是DCGAN和CycleGAN。
+
+\textbf{DCGAN.}\cite{dcgan}\quad 是一个深度卷积对抗生成网络，其生成器和判别器使用的是限制卷积网络，主要的架构特点有：(1)用多步卷积和分布卷积层代替了所有的池化层(pooling layer)；(2)使用了批量统一化层(batch normalization layer)；(3)去掉了所有的全连接层；(4)在生成器中，使用$\tan{h}$作为输出层的激活函数，ReLU函数作为其它层的激活函数；(5)判别器中，所有层的激活函数都使用LeakyReLU函数。
+
+虽然DCGAN的作者将其运用在人脸合成与转换上相当成功，但我们后来将其训练集换成了Udacity的自动驾驶路况数据集以及youtube上爬取的数据，实验结果样本图如下图\ref{dcgan_example}所示，效果却不理想。
+
+\begin{figure}[h]
+    \centering
+    \subfigure[DCGAN在人脸图像合成的效果样例图]{
+        \includegraphics[width=0.75\textwidth]{dcgan_example}
+    }
+    % TODO: add dcgan result imgs.
+    \caption{}
+    \label{dcgan_example}
+\end{figure}
+
+实验代码使用的是\cite{dcgan}论文中给出的代码，其中主要参数配置如下
+
+% TODO: confirm
+\begin{lstlisting}[basicstyle=\small]
+    --bathSize     200          // 批量实验数据大小
+    --imageSize    180, 320     // 设置图像尺寸大小
+    --nz           20           // z向量
+    --niter        10000        // 训练的次数
+    --lr           0.0002       // Learning rate
+    --cuda                      // 在cuda库上训练
+\end{lstlisting}
+
+由于DCGAN在驾驶路况图片上的合成效果很差，于是我们放弃了对该框架进一步的实验结果数据统计与总结。
+
+% wc ~ 1200
+
+\subsubsection{具有限制的图像合成类}
+
+这一类对抗生成网络能够实现通过用户给定的限制，比如图像、文字说明或者描边来合成新图像，这一类的模型我们首先在现有的数据集上实验了CycleGAN。
+
+\textbf{CycleGAN.}\cite{CycleGAN}\quad 该模型的本质是学习不同图片类(比如晴天和雨天)的数据分布映射函数。给定两个不同类的数据集$X$和$Y$以及训练样本集$\{x_i\}_{x=1}^N, \{y_j\}_{j=1}^M$，其中$x_i\in X, y_j\in Y$。将数据分布记为$x\sim p_{data}(x), y\sim p_{data}(y)$。如图\ref{cyclegan_1}所示，CycleGAN包含两个映射函数$G: X\to Y$和$F: Y\to X$，其次，CycleGAN还引进了两个判别器$D_X$和$D_Y$，其中$D_X$的目标是区分图像集$\{x\}$和转换的图像集$\{F(y)\}$，同样的，$D_Y$的目标是区分图像集$\{y\}$和$\{G(x)\}$。最终模型的训练目标是得到两个损失函数：(i)对抗损失函数，可以将合成的图像数据分布匹配对应到目标类的数据分布上；(ii)循环一致损失函数，阻止之前学习到的两个映射函数$G$和$F$彼此相矛盾。
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.35\textwidth]{cyclegan_1}
+    \label{cyclegan_1}
+    \caption{}
+\end{figure}
+
+\subsection{图像风格转换大类}[Neural Style Transfer Class]
 
 \chapter{发现}[Findings]
 
 \chapter{相关研究}[Related Work]
 
-\chapter{结论}[Conclusions]
+\chapter{总结}[Conclusions]
