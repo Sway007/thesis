@@ -172,7 +172,7 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 为了对目前所有的对抗生成网络技术能有一个综合的认识，我们主要参考了文献\cite{gan-survey}，跟据文献中的分类，依次对每种类型中比较典型的框架进行了实验与数据总结统计。实验过程中为了保持尽量跟框架作者实现的效果性能一致，我们只选取了提供了源代码的框架进行了实验。
 
 % TODO: confirm this
-\textbf{统一说明}，本文后续所有的实验均是在64位Ubuntu操作系统，8核1080ti-GPU硬件环境下进行的。
+\textbf{统一说明}，本文后续所有的实验均是在64位Ubuntu 16.04.6 LTS操作系统，8核GTX 1080ti-GPU硬件环境下进行的。
 
 \subsubsection{DCGAN}[DCGAN]
 
@@ -180,19 +180,21 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 虽然DCGAN的作者将其运用在人脸合成与转换上相当成功，但我们后来将其训练集换成了Udacity的自动驾驶路况数据集以及youtube上爬取的数据，实验结果样本图如下图\ref{dcgan_example}所示，效果却不理想。
 
-\begin{figure}[h]
+\begin{figure}[t]
     \centering
     \subfigure[DCGAN在人脸图像合成的效果样例图]{
         \includegraphics[width=0.75\textwidth]{dcgan_example}
     }
-    % TODO: add dcgan result imgs.
+    \subfigure[DCGAN在自动驾驶数据集上的效果样例图]{
+        \includegraphics[width=0.4\textwidth]{results/dcgan_night}
+        \includegraphics[width=0.4\textwidth]{results/dcgan_rain}
+    }
     \caption{}
     \label{dcgan_example}
 \end{figure}
 
 实验代码使用的是\cite{dcgan}论文中给出的代码，其中主要参数配置如下
 
-% TODO: confirm
 \begin{lstlisting}[basicstyle=\small]
     --bathSize     200          // 批量实验数据大小
     --imageSize    180, 320     // 设置图像尺寸大小
@@ -251,7 +253,43 @@ CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:
 
 \textbf{MUNIT.}\cite{MUNIT}\quad MUNIT是基于UNIT\cite{UNIT}工作的进一步优化。它提出了一个可以解决多模型图片到图片转换问题的框架。它对于图像转换问题提出了几个假设：图片的潜在空间(latent space)可以被分解成内容空间和样式空间。基于上一个假设又提出了不同域类的图片共享一个类似的内容空间，但样式空间不一致。为了将一张图片转换成目标域类，MUNIT提出可以将图片的内容码与目标域类样式码空间的一个随机样式码重组。这里的内容码代表了在图片转换过程中应该被保留的信息元，而状态码则代表了不包含在输入图片中还剩下的变量元。通过采样不同的状态码，MUNIT模型能够产生多样，多模型的输出。以上严格的数学定义如下：
 
-假定$x_1\in \chi_1$和$x_2\in \chi_2$是来自两个图片域类的图片集，给定来自两个不同边缘分布$p(x_1)$和$p(x_2)$的样本图片集，但不知道联合分布$p(x_1, x_2)$。MUNIT的目的是利用学习到的图片到图片转换模型$p(x_{1\to 2}|x_1)$和$p(x_{2\to 1}|x_2)$来预测两个边缘分布$p(x_1|x_2)$和$p(x_2|x_1)$，这里的$x_{1\to 2}$是由将$x_1$转换成$x_2$产生的一个样本输出。一般来说，$p(x_1|x_2)$和$p(x_2|x_1)$通常是十分复杂且多模型分布，为了简化这两个边缘分布，MUNIT提出了\textit{部分共享潜在空间假设}。即假设每张图片$x_i\in \chi_i$都是由两种码，内容码和样式码，组成，其中内容码$c\in C$由两个类域共享，而样式码$s_i\in S_i$则是每个域类图片所特有的。换句话说，一组来自联合分布的对应的图片$(x_1, x_2)$
+假定$x_1\in \chi_1$和$x_2\in \chi_2$是来自两个图片域类的图片集，给定来自两个不同边缘分布$p(x_1)$和$p(x_2)$的样本图片集，但不知道联合分布$p(x_1, x_2)$。MUNIT的目的是利用学习到的图片到图片转换模型$p(x_{1\to 2}|x_1)$和$p(x_{2\to 1}|x_2)$来预测两个边缘分布$p(x_1|x_2)$和$p(x_2|x_1)$，这里的$x_{1\to 2}$是由将$x_1$转换成$x_2$产生的一个样本输出。一般来说，$p(x_1|x_2)$和$p(x_2|x_1)$通常是十分复杂且多模型分布，为了简化这两个边缘分布，MUNIT提出了\textit{部分共享潜在空间假设}。即假设每张图片$x_i\in \chi_i$都是由两种码，内容码和样式码，组成，其中内容码$c\in C$由两个类域共享，而样式码$s_i\in S_i$则是每个域类图片所特有的。换句话说，一组来自联合分布的对应的图片$(x_1, x_2)$是由$x_!=G_1^*(c,s_1)$和$x_2=G_2^*(c, s_2)$生成的，这里的$c,s_1,s_2$都是来自鲜艳分布，$G_1^*，G_2^*$是实际的生成器。进一步假设$G_1^*$和$G_2^*$是确定性函数，且有反解码器$E_1^*=(G_1^*)^{-1}$和$E_2^*=(G_2^*)^{-1}$。MUNIT的目的是利用神经网络学习实际的生成器以及编码函数。它使用了两个重建的目标函数：给定来自数据分布的图像样本，在编码和解码后我们能够重建它:
+$$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
+
+给定在转换时的样式和内容码，我们也应该能够在解码和编码后重建图像:
+\begin{align*}
+    L_{recon}^{c_1}= & E_{c_1\sim p(c_1), s_2\sim q(s_2)}[||E_2^c(G_2(c_1,s_2))-c_1||_1] \\
+    L_{recon}^{s_2}= & E_{c_1\sim p(c_1), s_2\sim q(s_2)}[||E_2^s(G_2(c_1, s_2))-s_2||_1]
+\end{align*}
+
+结合以上公式，MUNIT的总的损失函数可以由下面的公式表示:
+\begin{gather*}
+\min_{E_1,E_2,G_1,G_2}\max_{D_1,D_2}L(E_1,E_2,G_1,G_2,D_1,D_2)=L_{GAN}^{x_1}_L_{GAN}^{x_2}+\\
+\lambda_x(L_{recon}^{x_1}+L_{recon}^{x_2})+\lambda_c(L_{recon}^{c_1}+L_{recon}^{c_2})+\lambda_s(L_{recon}^{s_1}+L_{recon}^{s_2})
+\end{gather*}
+
+最后我们使用了MUNIT提供的代码，主要的优化配置参数如下：
+
+\begin{lstlisting}[basicstyle=\small]
+    max_iter: 1000000             # maximum number of training iterations
+    batch_size: 1                 # batch size
+    weight_decay: 0.0001          # weight decay
+    beta1: 0.5                    # Adam parameter
+    beta2: 0.999                  # Adam parameter
+    init: kaiming                 # initialization [gaussian/kaiming/xavier/orthogonal]
+    lr: 0.0001                    # initial learning rate
+    lr_policy: step               # learning rate scheduler
+    step_size: 100000             # how often to decay learning rate
+    gamma: 0.5                    # how much to decay learning rate
+    gan_w: 1                      # weight of adversarial loss
+    recon_x_w: 10                 # weight of image reconstruction loss
+    recon_s_w: 1                  # weight of style reconstruction loss
+    recon_c_w: 1                  # weight of content reconstruction loss
+    recon_x_cyc_w: 10             # weight of explicit style augmented cycle consistency loss
+    vgg_w: 0                      # weight of domain-invariant perceptual loss
+\end{lstlisting}
+
+
 
 \subsection{图像风格转换大类}[Neural Style Transfer Class]
 
