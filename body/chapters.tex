@@ -169,14 +169,12 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 \end{equation}
 实际训练过程中，等式\eqref{eq:gan}中的生成器$G$可能会出现梯度消失的问题，但由于本文章不是对对抗生成网络算法的研究，所以就不在此展开了。
 
-为了对目前所有的对抗生成网络技术能有一个综合的认识，我们主要参考了文献\cite{gan-survey}，跟据文献中的分类，依次对每种类型中比较典型的框架进行了实验与数据总结统计。
+为了对目前所有的对抗生成网络技术能有一个综合的认识，我们主要参考了文献\cite{gan-survey}，跟据文献中的分类，依次对每种类型中比较典型的框架进行了实验与数据总结统计。实验过程中为了保持尽量跟框架作者实现的效果性能一致，我们只选取了提供了源代码的框架进行了实验。
 
 % TODO: confirm this
 \textbf{统一说明}，本文后续所有的实验均是在64位Ubuntu操作系统，8核1080ti-GPU硬件环境下进行的。
 
-\subsubsection{一般的对抗生成网络}[General GANs]
-
-这类框架的没有特别指定的应用场景，通常是对模型架构上做出了一些优化，其中比较有代表性的是DCGAN和CycleGAN。
+\subsubsection{DCGAN}[DCGAN]
 
 \textbf{DCGAN.}\cite{dcgan}\quad 是一个深度卷积对抗生成网络，其生成器和判别器使用的是限制卷积网络，主要的架构特点有：(1)用多步卷积和分布卷积层代替了所有的池化层(pooling layer)；(2)使用了批量统一化层(batch normalization layer)；(3)去掉了所有的全连接层；(4)在生成器中，使用$\tan{h}$作为输出层的激活函数，ReLU函数作为其它层的激活函数；(5)判别器中，所有层的激活函数都使用LeakyReLU函数。
 
@@ -208,9 +206,7 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 % wc ~ 1200
 
-\subsubsection{具有限制的图像合成类}
-
-这一类对抗生成网络能够实现通过用户给定的限制，比如图像、文字说明或者描边来合成新图像，这一类的模型我们首先在现有的数据集上实验了CycleGAN。
+\subsubsection{CycleGAN}[CycleGAN]
 
 \textbf{CycleGAN.}\cite{CycleGAN}\quad 该模型的本质是学习不同图片类(比如晴天和雨天)的数据分布映射函数。给定两个不同类的数据集$X$和$Y$以及训练样本集$\{x_i\}_{x=1}^N, \{y_j\}_{j=1}^M$，其中$x_i\in X, y_j\in Y$。将数据分布记为$x\sim p_{data}(x), y\sim p_{data}(y)$。如图\ref{cyclegan_1}所示，CycleGAN包含两个映射函数$G: X\to Y$和$F: Y\to X$，其次，CycleGAN还引进了两个判别器$D_X$和$D_Y$，其中$D_X$的目标是区分图像集$\{x\}$和转换的图像集$\{F(y)\}$，同样的，$D_Y$的目标是区分图像集$\{y\}$和$\{G(x)\}$。最终模型的训练目标是得到两个损失函数：(i)对抗损失函数，可以将合成的图像数据分布匹配对应到目标类的数据分布上；(ii)循环一致损失函数，阻止之前学习到的两个映射函数$G$和$F$彼此相矛盾。
 
@@ -220,6 +216,42 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
     \label{cyclegan_1}
     \caption{}
 \end{figure}
+
+CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:X\to Y$和他的判别器$D_Y$，可以将其目标函数表示为
+\begin{align*}
+    \label{eq:2}
+    \centering
+    L_{GAN}(G,D_Y,X,Y)= & \xi_{y\sim p_{data}(y)}[\log D_Y(y)] + \\
+    & \xi_{x\sim p_{data}(x)}[\log (1-D_Y(G(x)))]
+\end{align*}
+
+这里的$G$试图产生类似于类$Y$的图像集$G(x)$，然而$D_Y$的目标是区分转换的图像$G(x)$和真实的图像数据$y$。$G$旨在与对抗器$D$竞争最小化该目标函数。
+
+对抗器理论上可以训练出可以输出和目标类$Y$与$X$分布完全相同的数据的映射函数$G$和$F$，但是如果网络的体积足够大，可以将相同的输入图片集映射到目标图片类的任意图像子集里。因此，单靠对抗损失函数无法保证学习到了映射函数能将单张输入图片$x_i$映射到理想的输出$y_i$。为了进一步减小可能的映射函数空间，CycleGAN提出循环一致映射函数，即对于来自类$X$的每张图像，对应的图像转换循环应该能够将$x$转换成原始图片，即\textit{向前循环一致}。上述的循环一致损失函数可以表示为：
+\begin{align*}
+    \label{eq:3}
+    \centering
+    L_{cyc}(G,F)= & \xi_{x\sim p_{data}(x)}[||F(G(x))-x||_1] + \\
+    & \xi_{y\sim p_{data}(y)}[||G(F(y))-y||_1]
+\end{align*}
+
+综合等式\ref{eq:2}和等式\ref{eq:3}我们可以得到总的目标函数:
+\begin{align*}
+    \centering
+    L(G, F, D_X, D_Y) = & L_{GAN}(G,D_Y, X, Y) \\
+    & + L_{GAN}(F,D_X, Y, X) \\
+    & + \lambda L_{cyc}(G, F)
+\end{align*}
+这里的$\lambda$控制着两个目标的相对重要性。下图是我们将CycleGAN运用在我们的数据集上的实验结果样本图。
+
+% TODO: add experiment config
+% wc ~ 800
+
+\subsubsection{MUNIT}[MUNIT]
+
+\textbf{MUNIT.}\cite{MUNIT}\quad MUNIT是基于UNIT\cite{UNIT}工作的进一步优化。它提出了一个可以解决多模型图片到图片转换问题的框架。它对于图像转换问题提出了几个假设：图片的潜在空间(latent space)可以被分解成内容空间和样式空间。基于上一个假设又提出了不同域类的图片共享一个类似的内容空间，但样式空间不一致。为了将一张图片转换成目标域类，MUNIT提出可以将图片的内容码与目标域类样式码空间的一个随机样式码重组。这里的内容码代表了在图片转换过程中应该被保留的信息元，而状态码则代表了不包含在输入图片中还剩下的变量元。通过采样不同的状态码，MUNIT模型能够产生多样，多模型的输出。
+
+
 
 \subsection{图像风格转换大类}[Neural Style Transfer Class]
 
