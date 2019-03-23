@@ -360,7 +360,7 @@ $$
 
 这里的$\alpha$和$\beta$分别表示内容和样式在重建过程中的权重。下面我们参考了文献\cite{nst-survey}，根据里面给出的分类抽取了具有代表性的几个模型进行了实验，实验平台跟之前的实验一致。
 
-\subsection[AdaIN-style]{AdaIN-style}
+\subsubsection[AdaIN-style]{AdaIN-style}
 
 \textbf{AdaIN-style.}\cite{adain}\quad 文献\cite{ioffe}提出批量正则化层极大的简化了向前传播网络的训练，AdaIN-style的模型结构也使用了批量正则化层，并且在次基础上通过将该层的激活函数改为单例正则，训练性能得到的巨大提升：
 $$ IN(x)=\gamma(\frac{x-\mu(x)}{\tau(x)})+\beta$$
@@ -373,7 +373,12 @@ $$CIN(x;s)=\gamma^*(\frac{x-\mu(x)}{\tau(x)})+\beta^*$$
 总体来说，AdaIN通过转换特征统计量，特别是像素均值和方差，来实现特征空间的样式转换。
 AdaIN在已有的数据集上晴天转雪天、晚上的实验结果样例图如下：
 \begin{figure}[h]
-    \includegraphics[]{}
+    \centering
+    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin1}}
+    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin2}}
+    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin3}}
+    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin4}}
+    \caption{AdaIN实验结果样例图}
 \end{figure}
 
 \chapter{发现}[Findings]
