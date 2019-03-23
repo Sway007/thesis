@@ -244,9 +244,22 @@ CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:
     & + L_{GAN}(F,D_X, Y, X) \\
     & + \lambda L_{cyc}(G, F)
 \end{align*}
-这里的$\lambda$控制着两个目标的相对重要性。下图是我们将CycleGAN运用在我们的数据集上的实验结果样本图。
+这里的$\lambda$控制着两个目标的相对重要性。下图是我们将CycleGAN运用在我们的数据集上,进行了晚上到白天以及黑天场景转换的实验结果样本图。
 
-% TODO: add experiment config
+\begin{figure}[h]
+    \centering
+    \subfigure[原始图片]{
+        \includegraphics[width=0.3\textwidth]{results/cyclegan-input}
+    }
+    \subfigure[白天场景]{
+        \includegraphics[width=0.3\textwidth]{results/cyclegan-sun}
+    }
+    \subfigure[黑天场景]{
+        \includegraphics[width=0.3\textwidth]{results/cyclegan-night}
+    }
+    \caption{CycleGAN实验样例图}
+\end{figure}
+
 % wc ~ 800
 
 \subsubsection{MUNIT}[MUNIT]
@@ -268,9 +281,9 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
 \lambda_x(L_{recon}^{x_1}+L_{recon}^{x_2})+\lambda_c(L_{recon}^{c_1}+L_{recon}^{c_2})+\lambda_s(L_{recon}^{s_1}+L_{recon}^{s_2})
 \end{gather*}
 
-最后我们使用了MUNIT提供的代码，主要的优化配置参数如下：
+最后我们使用了MUNIT提供的代码，进行了晴天路况图和雪天场景的转换，主要的优化配置参数如下和最终的实验结果样例图如下：
 
-\begin{lstlisting}[basicstyle=\small]
+\begin{lstlisting}[basicstyle=\small, caption={MUNIT主要优化参数配置}, captionpos=b]
     max_iter: 1000000             # maximum number of training iterations
     batch_size: 1                 # batch size
     weight_decay: 0.0001          # weight decay
@@ -289,9 +302,79 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
     vgg_w: 0                      # weight of domain-invariant perceptual loss
 \end{lstlisting}
 
+\begin{figure}[h]
+    \subfigure[原始图片]{
+        \includegraphics[width=.3\textwidth]{results/munit}
+    }
+    \subfigure[雪天场景1]{
+        \includegraphics[width=.3\textwidth]{results/munit_winter}
+    }
+    \subfigure[雪天场景2]{
+        \includegraphics[width=.3\textwidth]{results/munit_winter2}
+    }
+    \caption{MUNIT实验样例图}
+\end{figure}
 
+\subsubsection[EBGAN]{EBGAN}
+
+\textbf{EBGAN.}\cite{ebgan}\quad 的核心思想是讲判别器视为一个能量函数而不是通常的概率函数。它提出了对抗生成模型训练的一个基于能量表达的公式。由判别器计算出来的能量函数可以被视作生成器的可训练代价函数。虽然可以将能量函数通过Gibbs分布转换成概率函数，但是基于它提出的基于能量形式的对抗生成网络由于缺少归一化，从而使我们在判别器的架构和训练过程中有了更多的选择，下面简单阐述一下EBGAN的基本原理。
+
+将$p_{data}$视作产生真实数据集分布的概率密度函数，生成器$G$训练生成赝本数据$G(z)$。为了定义能量函数，判别器的输出通过一个目标泛函算子进行转换，将低能量视为真实样本数据，而高能量则为合成的伪数据。跟一般的对抗生成网络一样，EBGAN也使用了两个不同的损失函数来分别训练生成器和判别器。
+
+给定一个正边缘分布函数$m$，一个数据样本$x$和一个生成样本$G(z)$，判别器损失函数$L_D$和生成器损失函数$L_G$可以定义为以下：
+\begin{align*}
+    L_D(x, z) = & D(x) + [m - D(G(z))] \\
+    L_G(z) = & D(G(z))
+\end{align*}
+
+给定一个生成器$G$，$p_G$为$G(z)$的密度分布，这里$z\sim p_z$。换句话说，$p_G$是由$G$产生的样本的概率密度函数。定义$V(G,D)=\int_{x,z}L_D(x,z)p_{data}(x)p_z(z)dxdz$和$U(G,D)=\int_zL_G(z)p_z(z)dz$，训练中判别器来最小化$V$值，生成器最小化$U$值。该系统的纳什均衡是一组满足一下条件的一对$(G^*,D^*)$:
+\begin{align*}
+    V(G^*,D^*) \leq V(G^*,D) \quad\quad \forall D \\
+    U(G^*,D^*) \leq U(G,D^*) \quad\quad \forall G
+\end{align*}
+
+我们在已有的数据集上使用了tensorflow实现的EBGAN代码\cite{ebgan-github}，实现了晴天路况到雨天场景的转换，以下是实验结果样例图
+
+\begin{figure}[h]
+    \centering
+    \subfigure[原始图片]{
+        \includegraphics[width=.45\textwidth]{results/ebgan-input}
+    }
+    \subfigure[雨天场景]{
+        \includegraphics[width=.45\textwidth]{results/ebgan-rain}
+    }
+    \caption{}
+\end{figure}
+
+% wc ~ 1700
 
 \subsection{图像风格转换大类}[Neural Style Transfer Class]
+
+图像风格转换技术是受启发于近20年来卷及网络神经的发展，Gatys等人\cite{nst}提出利用卷积神经网络来复现一些著名的绘画风格。为了获得输入图片的风格表征形式，他们使用了一个原本用来获取图层信息的特征空间。该特征空间构建于神经网络的每一层过滤网之上。它由特征图谱各个部分的过滤网之间的协方差组成。通过引进多层网络之间的特征协方差，可以得到一个输入图片的一个静止、多尺度的能够包含图层信息的表征形式。再者，还可以通过构建一张匹配给定的输入图片的样式表达的图片来将建立在网络中不同层的样式特征空间信息可视化。为了合成拥有输入图片样式的图片，一般的图像风格转换技术会最小化来自一层网络的内容表征的白噪声图片与卷积网络层中输入图片的样式表征之间的距离。让$\overrightarrow{p}$表示合成照片，$\overrightarrow{a}$表示输入图片，则损失函数可以表示为：
+$$
+\centering
+L_{total}(\overrightarrow{p},\overrightarrow{a}, \overrightarrow{x})=
+\alpha L_{content}(\overrightarrow{p}, \overrightarrow{x}) +
+\beta L_{style}(\overrightarrow{a}, \overrightarrow{x})
+$$
+
+这里的$\alpha$和$\beta$分别表示内容和样式在重建过程中的权重。下面我们参考了文献\cite{nst-survey}，根据里面给出的分类抽取了具有代表性的几个模型进行了实验，实验平台跟之前的实验一致。
+
+\subsection[AdaIN-style]{AdaIN-style}
+
+\textbf{AdaIN-style.}\cite{adain}\quad 文献\cite{ioffe}提出批量正则化层极大的简化了向前传播网络的训练，AdaIN-style的模型结构也使用了批量正则化层，并且在次基础上通过将该层的激活函数改为单例正则，训练性能得到的巨大提升：
+$$ IN(x)=\gamma(\frac{x-\mu(x)}{\tau(x)})+\beta$$
+与之前的批量正则层不同的是单例层在测试阶段不变，然而批量正则层通常会用总体统计数据替换掉批量神经元的均值。
+
+除了学习仿射参数$\gamma$和$\beta$，另一个改进方式是为每一个样式$s$学习不同的参数$\gamma^*$和$\beta^*$：
+$$CIN(x;s)=\gamma^*(\frac{x-\mu(x)}{\tau(x)})+\beta^*$$
+训练过程中，样例图片和它的指数$s$被随机从一个固定的样例集合$s\in {1,2,\dots,S}(S=32)$选取。内容图片会被样式转换网络进行转换，该网络中对应的$\gamma^*$和$\beta^*$被用在条件单例正则层里。
+
+总体来说，AdaIN通过转换特征统计量，特别是像素均值和方差，来实现特征空间的样式转换。
+AdaIN在已有的数据集上晴天转雪天、晚上的实验结果样例图如下：
+\begin{figure}[h]
+    \includegraphics[]{}
+\end{figure}
 
 \chapter{发现}[Findings]
 
