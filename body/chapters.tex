@@ -168,6 +168,8 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，为了对目前所有的对抗生成网络技术能有一个综合的认识，我们首先参考了文献\cite{gan-survey}，其中给出了目前学术界最为主流、为人熟知的几个模型算法：cGAN\cite{cGAN}，DCGAN\cite{dcgan}，LAPGAN\cite{LAPGAN}和EBGAN\cite{ebgan}。我们一次对上述算法模型都进行了实验，但是其中cGAN和LAPGAN在论文中没有开放其实验源码，且DCGAN在我们已有的路况图片数据集上的实验效果十分不理想，于是在实验初期我们排除了这几个模型。
 
+在实验过上述模型后，我们通过Google搜索引擎，论文引用等途径陆续又发现了对抗生成网络中可以实现图像合成的几个模型，其中有大类是属于图片合成的输入需要有一张大致的纹理图，即给定一张样本纹理图和一组待转换的原图，输出为纹理跟输入纹理图一致的一组合成图，很明显这根我们的实验目的不匹配，故而呀排除了。这一大类的模型有：MGAN\cite{MGAN}，SGAN\cite{SGAN}和PSGAN\cite{PSGAN}。
+
 以上是我们对实验模型筛选的大致历程，下面简单的介绍一下对抗生成网络的背景以及选择的对应模型。
 
 % TODO:添加一小节说明模型的筛选历程　
@@ -491,7 +493,20 @@ $$G_{ij}^l(x)=<F_I^l(x),F_j^l(x)>$$
 $$L_T(x;x_0)=\sum_{l\in L_Y}||G^l(x)-G^l(x_0)||_2^2$$
 除了纹理损失函数，该算法还提出基于卷基层$l\in L_C$的输出$F_i^l(x)$来比较图片差异：
 $$L_C(x;y)=\sum_{l\in L_C}\sum_{i=1}^{N_t}||F_i^l(x)-F_i^l(y)||_2^2$$
-这里的$N_t$是第$l$层的特征通道个数。与纹理损失的主要差别在于内容损失在对应的空间区域比较特征激活函数，因此保留了空间位置信息。因此内容损失函数对于内容信息保留来说更合适，但对与纹理信息去并不合适
+这里的$N_t$是第$l$层的特征通道个数。与纹理损失的主要差别在于内容损失在对应的空间区域比较特征激活函数，因此保留了空间位置信息。因此内容损失函数对于内容信息保留来说更合适，但对于纹理信息去并不合适。
+
+算法中具体的学习过程是通过调整生成器$g(y_i,z_i;\theta)$参数$\theta$来最小化内容和纹理损失函数的组合值：
+$$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_C(g(y,z;\theta),y)]$$
+这里的$Z$表示纹理合成图片的噪声分布，$y$是真实图片的实际分布，$\alpha$是平衡纹理/样式和内容的参数。图\ref{tn-example}为该模型的最终实验结果样例图。
+\begin{figure}[h]
+    \centering
+    \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/1}}
+    \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/2}}
+    \caption{Texture Nets实验结果样例图} 
+    \ref{tn-example}
+\end{figure}
+
+% wc ~ 800
 
 \chapter{发现}[Findings]
 
