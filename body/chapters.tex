@@ -166,6 +166,8 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，下面简单的介绍一下对抗生成网络的背景以及选择的对应模型。
 
+% TODO:添加一小节说明模型的筛选历程
+
 \subsection{对抗生成网络大类}[Generative Adversarial Network Class]
 
 对抗生成网络\cite{GAN}首先由Ian J. Goodfellow等人提出，它的本质是模拟真实数据源的概率分布。其基本框架有两个神经网络组成：生成模型网络和判别模型网络，其中判别模型负责学习区分数据是否来自真实数据分布，而生成模型可以想象成一个制造伪币的团伙，试图产生能够通过货币监测的钞票，判别模型正是这个对抗游戏中的警察，试图甄别出货币中的假钞。整个对抗生成网络模型的训练过程就是对抗模型和生成模型的训练竞赛，整个训练过程直到判别模型再也区分不出数据是来自真实数据分布还是生成模型伪造的数据为止。
@@ -459,7 +461,9 @@ $$W^*=\arg \min_W E_{x,\{y_i\}}\Big[\sum_{i=1}\lambda_i\ell_i(f_W(x),y_i)\Big]$$
 算法中提出特征重建损失值是不同特征空间中的欧几里得距离：
 $$\ell_{feat}^{\Theta,j}(\hat{y},y)=\frac{1}{C_jH_jW_j}||\Theta_j(\hat{y})-\Theta_j(y)||_2^2$$
 当输出图片与目标图片的内容差异时特征重建损失函数会惩罚输出图片，对于输入$x$，网络$\Theta$中第$j$层的激活函数记为$\Theta_j(x)$，该函数是形状为$C_j\times H_j\times W_j$的特征图谱，定义Gram矩阵为$C_j\times C_j$的方阵，其元素有下面的公式给定
-$$G_j^{\Theta}(x)_{c,\hat{c}=\frac{1}{C_jH_jW_j}\sum$$
+$$G_j^{\Theta}(x)_{c,\hat{c}}=\frac{1}{C_jH_jW_j}\sum_{h=1}^{H_j}\sum_{w=1}^{W_j}\Theta_j(x)_{h,w,c}\Theta_j(x)_{h,w,\hat{c}}$$
+
+除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。
 
 \chapter{发现}[Findings]
 
