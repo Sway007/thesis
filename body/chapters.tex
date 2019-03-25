@@ -148,7 +148,7 @@ Pei K\cite{DeepXplore}等人首次针对自动驾驶系统测试，提出一个�
 \end{center}
 IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终实验结果反映IS的分数与人工标注评价正相关。
 
-\textbf{Fre ́chet Inception Distance(FID).\cite{FID}}\quad FID提出了另一个评价方法，它首先将所有的合成图片放入一个特征空间，然后将该空间视为一个多元高斯分布，分别计算合成图和真实图的均值与方差，将两者高斯分布的Fre ́chet距离来量化真实图与合成图之间的距离，进而作为对合成图的评价：
+\textbf{Frechet Inception Distance(FID).\cite{FID}}\quad FID提出了另一个评价方法，它首先将所有的合成图片放入一个特征空间，然后将该空间视为一个多元高斯分布，分别计算合成图和真实图的均值与方差，将两者高斯分布的Fre ́chet距离来量化真实图与合成图之间的距离，进而作为对合成图的评价：
 \begin{center}
     $FID(x,g)=||\mu_x-\mu_g||_2^2+Tr(\sum_x + \sum_g - 2(\sum_x\sum_g)^{\frac{1}{2}})$
 \end{center}
@@ -164,9 +164,14 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 \section{模型的筛选与实验}[Model Filting and Experiments]
 
-基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，下面简单的介绍一下对抗生成网络的背景以及选择的对应模型。
+\subsection{模型筛选}[Model Filting]
 
-% TODO:添加一小节说明模型的筛选历程
+基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，为了对目前所有的对抗生成网络技术能有一个综合的认识，我们首先参考了文献\cite{gan-survey}，其中给出了目前学术界最为主流、为人熟知的几个模型算法：cGAN\cite{cGAN}，DCGAN\cite{dcgan}，LAPGAN\cite{LAPGAN}和EBGAN\cite{ebgan}。我们一次对上述算法模型都进行了实验，但是其中cGAN和LAPGAN在论文中没有开放其实验源码，且DCGAN在我们已有的路况图片数据集上的实验效果十分不理想，于是在实验初期我们排除了这几个模型。
+
+以上是我们对实验模型筛选的大致历程，下面简单的介绍一下对抗生成网络的背景以及选择的对应模型。
+
+% TODO:添加一小节说明模型的筛选历程　
+% 图像风格迁移大部分是艺术照效果，故排除
 
 \subsection{对抗生成网络大类}[Generative Adversarial Network Class]
 
@@ -177,9 +182,7 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
     \label{eq:gan}
     \min_G\max_DV(D,G)=\xi_{x\sim p_{data}(x)}[\log D(x)]+\xi_{z\sim p_z(z)}[\log(1-D(z))]
 \end{equation}
-实际训练过程中，等式\eqref{eq:gan}中的生成器$G$可能会出现梯度消失的问题，但由于本文章不是对对抗生成网络算法的研究，所以就不在此展开了。
-
-为了对目前所有的对抗生成网络技术能有一个综合的认识，我们主要参考了文献\cite{gan-survey}，跟据文献中的分类，依次对每种类型中比较典型的框架进行了实验与数据总结统计。实验过程中为了保持尽量跟框架作者实现的效果性能一致，我们只选取了提供了源代码的框架进行了实验。
+实际训练过程中，等式\eqref{eq:gan}中的生成器$G$可能会出现梯度消失的问题，但由于本文章不是对对抗生成网络算法的研究，所以就不在此展开了。实验过程中为了保持尽量跟框架作者实现的效果性能一致，我们只选取了提供了源代码的框架进行了实验。
 
 % TODO: confirm this
 \textbf{统一说明}，本文后续所有的实验均是在64位Ubuntu 16.04.6 LTS操作系统，8核GTX 1080ti-GPU硬件环境下进行的。
@@ -474,6 +477,21 @@ $$\ell_{feat}^{\Theta,j}(\hat{y},y)=\frac{1}{C_jH_jW_j}||\Theta_j(\hat{y})-\Thet
 $$G_j^{\Theta}(x)_{c,\hat{c}}=\frac{1}{C_jH_jW_j}\sum_{h=1}^{H_j}\sum_{w=1}^{W_j}\Theta_j(x)_{h,w,c}\Theta_j(x)_{h,w,\hat{c}}$$
 
 除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。图\ref{fnt-result}为该算法在我们的数据集上实验的结果样例图。
+
+% wc ~ 800
+
+\textbf{Texture Nets.}\cite{texture-nets}\quad 使用了前向生成网络来实现图像合成和风格化功能。该算法主要针对图像的纹理风格转换，文献\cite{texture-nets}中指出图片的纹理数据分布可由样本纹理数据$x_0$推导出，比如$x\sim p(x|x_0)$。在风格迁移中，分布是由图像$x_0$的视觉样式表征和另一张图片$x_１$的视觉内容表征推导出。特别的，为了从样本图片$x_0$合成纹理，这个问题可以表示为：
+$$\min_{x\in \chi}||\Phi(x)-\Phi(x_0)||_x^2$$
+对图像纹理来说，一般会假设$p(x)$是一个静态马尔科夫随机链。纹理$x_0$可以通以下公式估算局部区域的平均统计特征值：
+$$\phi(x_0)=\frac{1}{|\Omega|}\sum_{i=1}^{|\Omega|}\psi_oF(x_0;i)\approx E_{x\sim p(x)}[\phi_oF_l(x;0)]$$
+
+同其他的图像风格转换技术类似，该算法的损失函数也是从文献\cite{nst}中推导出来的，图像的统计数据通过固定的提前训练好的卷积神经网络(通常是VGG网络)提取出来。其Gram矩阵可以定义成一个向量矩阵和特征图谱的点积：
+$$G_{ij}^l(x)=<F_I^l(x),F_j^l(x)>$$
+因为网络属性是卷积的，所以每个点积都是所有空间特征$i$和$j$激活函数的乘积之和。模型在实际训练过程中，将Gram矩阵$G^l,l\in L_T$组合用作纹理描述表征体，这里的$L_T$包含了表征体卷积网络中卷积层的下标指数。以上可以推导除下面的图像$x$和$x_0$之间的纹理损失：
+$$L_T(x;x_0)=\sum_{l\in L_Y}||G^l(x)-G^l(x_0)||_2^2$$
+除了纹理损失函数，该算法还提出基于卷基层$l\in L_C$的输出$F_i^l(x)$来比较图片差异：
+$$L_C(x;y)=\sum_{l\in L_C}\sum_{i=1}^{N_t}||F_i^l(x)-F_i^l(y)||_2^2$$
+这里的$N_t$是第$l$层的特征通道个数。与纹理损失的主要差别在于内容损失在对应的空间区域比较特征激活函数，因此保留了空间位置信息。因此内容损失函数对于内容信息保留来说更合适，但对与纹理信息去并不合适
 
 \chapter{发现}[Findings]
 
