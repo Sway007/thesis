@@ -168,7 +168,17 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，为了对目前所有的对抗生成网络技术能有一个综合的认识，我们首先参考了文献\cite{gan-survey}，其中给出了目前学术界最为主流、为人熟知的几个模型算法：cGAN\cite{cGAN}，DCGAN\cite{dcgan}，LAPGAN\cite{LAPGAN}和EBGAN\cite{ebgan}。我们一次对上述算法模型都进行了实验，但是其中cGAN和LAPGAN在论文中没有开放其实验源码，且DCGAN在我们已有的路况图片数据集上的实验效果十分不理想，于是在实验初期我们排除了这几个模型。
 
-在实验过上述模型后，我们通过Google搜索引擎，论文引用等途径陆续又发现了对抗生成网络中可以实现图像合成的几个模型，其中有大类是属于图片合成的输入需要有一张大致的纹理图，即给定一张样本纹理图和一组待转换的原图，输出为纹理跟输入纹理图一致的一组合成图，很明显这根我们的实验目的不匹配，故而呀排除了。这一大类的模型有：MGAN\cite{MGAN}，SGAN\cite{SGAN}和PSGAN\cite{PSGAN}。
+在实验过上述模型后，我们通过Google搜索引擎，论文引用等途径陆续又发现了对抗生成网络中可以实现图像合成的几个模型，其中有一类是属于图片合成的输入需要有一张大致的纹理图，即给定一张样本纹理图和一组待转换的原图，输出为纹理跟输入纹理图一致的一组合成图，很明显这根我们的实验目的不匹配，因此被排除了。这一大类的模型有：MGAN\cite{MGAN}，SGAN\cite{SGAN}和PSGAN\cite{PSGAN}。
+
+另一类是属于图像填充功能，即跟据图片整体图像风格自动补充图片中因各种原因产生的空缺漏洞，这在计算机图形学和计算机视觉一致是个热门的研究领域，传统的方法是使用像素的复制和插值等数学方法来填充。对抗生成网络则提出了不一样的方法，通过学习大量同类的完整图片来实现图片的自动填充功能，比如文献\cite{GAN-inpaiting}提出的内容编码器方法。但由于这类模型跟我们图像风格转换的需求不匹配，因此没有做更深入的调研。
+
+类似的，还有专门为人脸图像合成的模型，比如Age-cGAN\cite{Age-cGAN}。该类模型一般由一个编码器和条件对抗生成网络组成，其中编码器$E$将人脸图像$x$映射到一个潜在向量$z$中，条件生成器$G$在将潜在向量$z$和条件年龄变量$c$映射到合成一张新的人脸图。为了验证该类模型效果，我们首先在人脸数据上对这类模型进行了实验，成功复现了人脸自动合成的功能，但其在自动驾驶场景转换上的效果却很差。这可能是因为模型中使用的条件年龄变量对于自动驾驶场景图像的生成没有对应的参照物，因此这一类模型实验数据我们没有作最后的统计。
+
+以上是我们对生成网络模型筛选的大概历程，前后我们实验过的模型11个，最后统计实验数据统计总结的模型个数有4个，即UNIT\cite{UNIT}，MUINT\cite{MUNIT}，CycleGAN\cite{CycleGAN}和EBGAN\cite{ebgan}。
+
+在调研了深度学习技术重点对抗生成网络大类后，我们重点参考了文献\cite{nst-survey}，了解到目前能够实现图像转换技术的深度学习框架比较流行的还有一类叫做图像风格转换技术的框架，顺着文献的分类我们对立面提到的模型都实验了一遍。但由于正如文献中提到的，图像风格转换技术最初是为人工合成艺术作品而产生的一项深度学习技术，在我们对这类技术模型实验的过程中发现大多数模型实验的结果虽然可以实现图像的风格转换，但都太艺术化了，距真实场景的图片出入太大，所以大部分的模型的实验结果我们最后都排除在了统计范围内，最后作为数据统计的模型有：Adin-Style\cite{adain}，Deep Photo Style Transfer\cite{dpst}，Fast Photo Style\cite{fps}，Fast Neural Transfer\cite{FNT}和Texture Nets\cite{texture-nets}。
+
+% TODO 插入图片
 
 以上是我们对实验模型筛选的大致历程，下面简单的介绍一下对抗生成网络的背景以及选择的对应模型。
 
@@ -191,10 +201,6 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 \subsubsection{DCGAN}[DCGAN]
 
-\textbf{DCGAN.}\cite{dcgan}\quad 是一个深度卷积对抗生成网络，其生成器和判别器使用的是限制卷积网络，主要的架构特点有：(1)用多步卷积和分布卷积层代替了所有的池化层(pooling layer)；(2)使用了批量统一化层(batch normalization layer)；(3)去掉了所有的全连接层；(4)在生成器中，使用$\tan{h}$作为输出层的激活函数，ReLU函数作为其它层的激活函数；(5)判别器中，所有层的激活函数都使用LeakyReLU函数。
-
-虽然DCGAN的作者将其运用在人脸合成与转换上相当成功，但我们后来将其训练集换成了Udacity的自动驾驶路况数据集以及youtube上爬取的数据，实验结果样本图如下图\ref{dcgan_example}所示，效果却不理想。
-
 \begin{figure}[t]
     \centering
     \subfigure[DCGAN在人脸图像合成的效果样例图]{
@@ -207,6 +213,11 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
     \caption{}
     \label{dcgan_example}
 \end{figure}
+
+\textbf{DCGAN.}\cite{dcgan}\quad 是一个深度卷积对抗生成网络，其生成器和判别器使用的是限制卷积网络，主要的架构特点有：(1)用多步卷积和分布卷积层代替了所有的池化层(pooling layer)；(2)使用了批量统一化层(batch normalization layer)；(3)去掉了所有的全连接层；(4)在生成器中，使用$\tan{h}$作为输出层的激活函数，ReLU函数作为其它层的激活函数；(5)判别器中，所有层的激活函数都使用LeakyReLU函数。除此之外该算法结构中，所有正定空间池化函数都换成了多步卷积函数，这样可以使网络网络学习到整个图像空间的采样。
+
+虽然DCGAN的作者将其运用在人脸合成与转换上相当成功，但我们后来将其训练集换成了Udacity的自动驾驶路况数据集以及youtube上爬取的数据，实验结果样本图如下图\ref{dcgan_example}所示，效果却不理想。
+
 
 实验代码使用的是\cite{dcgan}论文中给出的代码，其中主要参数配置如下
 
@@ -503,12 +514,16 @@ $$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_
     \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/1}}
     \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/2}}
     \caption{Texture Nets实验结果样例图} 
-    \ref{tn-example}
+    \label{tn-example}
 \end{figure}
 
 % wc ~ 800
 
 \chapter{发现}[Findings]
+
+\section{实验数据统计}[Experiments Statistics]
+
+\section{实验数据发现总结}[Experiments Findings]
 
 \chapter{相关研究}[Related Work]
 
