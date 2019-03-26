@@ -1,4 +1,7 @@
 % !Mode:: "TeX:UTF-8"
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+\newcommand{\mthead}[1]{\textit{\textbf{#1}}}
 
 \chapter{绪论}[Introduction]
 
@@ -521,7 +524,38 @@ $$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_
 
 \chapter{发现}[Findings]
 
+本章主要对前一章的实验数据进行统计和经验性总结。
+
 \section{实验数据统计}[Experiments Statistics]
+
+\textbf{训练时长.}\quad 在将我们找到的能够实现驾驶场景图片转换功能的模型基于Udacity自动驾驶数据集\cite{udacity_dataset}和已有的从Youtube上爬取的数据集进行图像转换实验，且得到各个模型是合成图数据后，我们首先统计的指标是各个模型的\textbf{训练时长}。所有模型的训练平台硬件环境都一致：Ubuntu 16.04 LTS操作系统，8核GeForce GTX 1080ti GPU。训练时长的工具使用的是GNU开源工具\textit{time}，统计数据如下表\ref{table:time}：
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{p{3cm}|rrr}
+        \hline
+        \mthead{模型名称} & \mthead{real} & \mthead{user} & \mthead{sys} \\
+        \hline
+        MUNIT & 3743m77.651s & 4927m93.474s & 837m.52.196s \\
+        \hline
+        CycleGAN & 3154m38.274s & 4081m81.696s & 731m20.894s \\ \hline
+        EBGAN & 3811m24.172s & 5021m32.721s & 757m19.141s \\ \hline
+        AdaIn Style & 2349m46.212s & 3782m18.764s & 554m26.476s \\ \hline
+        Deep Photo Style Transfer & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
+        Fast Photo Style & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
+        Fast Neural Transfer & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
+        Texture Nets & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
+    \end{tabular}
+    \label{table:time}
+    \caption{模型训练时间统计}
+\end{table}
+因为图像风格转换技术中，除了Adain Style，其他都是直接使用的文献中给定的pre-trained模型，一般都是VGG网络。在已有的数据中可以看到MUNIT训练用时最长。
+
+\textbf{FID.}\quad 
+
+\textbf{方向盘拐角.}\quad 为了测出每个模型最终的合成图对自动驾驶系统的干扰，即合成图的拐角与原图的拐角差，实验中自动驾驶拐角预测模型我们使用了Udacity自动驾驶竞赛中的cg23\cite{cg23}模型。由于模型代码的限制，在输出拐角前还必须对已有的合成图做相应的时间戳标记，这一部分使用了Udacity Driving Reader代码\cite{git:udr}。最终统计的所有模型合成图拐角与原图拐角的均方差如下图：
+
+
 
 \section{实验数据发现总结}[Experiments Findings]
 
