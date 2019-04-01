@@ -80,23 +80,15 @@
 \end{cabstract}
 
 \begin{eabstract}
-   An abstract of a dissertation is a summary and extraction of research work
-   and contributions. Included in an abstract should be description of research
-   topic and research objective, brief introduction to methodology and research
-   process, and summarization of conclusion and contributions of the
-   research. An abstract should be characterized by independence and clarity and
-   carry identical information with the dissertation. It should be such that the
-   general idea and major contributions of the dissertation are conveyed without
-   reading the dissertation.
+  In recent years, thanks to the development of deep learning, the research and development of autonomous driving has also made great breakthroughs. Many companies at home and abroad have developed their own autopilot system frameworks, such as Google's Waymo, Baidu's Apollo and Tesla's Autopilot. The most well-known Autopilot has been successfully deployed in real-life commercial Tesla sedan. in.
 
-   An abstract should be concise and to the point. It is a misunderstanding to
-   make an abstract an outline of the dissertation and words ``the first
-   chapter'', ``the second chapter'' and the like should be avoided in the
-   abstract.
+  Although major companies have advertised that the safety of today's autopilot systems is high enough, several autopilot accidents in the past year or two have caused concern about the safety performance of autopilot systems. The picture on the left is in March 2018. On the 23rd, a car accident occurred on the Highway in Mountain View, California, USA. The post-accident analysis pointed out that the car accident caused the failure of Autopilot to identify the white fence on the gray road background. The same right picture is also due to a misjudgment of the autopilot system developed by Uber, which occurred in 2017 in a car accident in Temple City, Arizona, USA.
 
-   Key words are terms used in a dissertation for indexing, reflecting core
-   information of the dissertation. An abstract may contain a maximum of 5 key
-   words, with semi-colons used in between to separate one another.
+  In addition to the above, there have been autopilot-related car accidents in recent years, all of which indicate that the current safety of autonomous driving is not as high as people think. In order to improve the safety level of the automatic driving system, the industry and academia have done a lot of research here. In 2017, the academic community has published two important articles in this field, DeepXplore\cite{DeepXplore} and DeepTest\cite{ DeepTest}, DeepXplore proposes a framework for automatic generation of test cases for deep learning systems. DeepTest extends DeepXplore's work and successfully applies the former method to the autopilot system test case, that is, the driving road scene graph, the generation, both work are based on the actual auto-driving framework as the test object, successfully generated in addition to many automatic Test cases that are misjudged by the driving system are of great significance for improving the safety performance of the autonomous driving system.
+
+  Based on the work of DeepXplore and DeepTest, my lab has proposed DeepRoad\cite{DeepRoad}, which enhances the generated autopilot test case by using the UNIT\cite{UNIT} framework in the anti-generation network \cite{GAN}. The quality of the driving scene picture. In this paper, we have done a lot of empirical research on existing deep learning techniques, including anti-generation network and image style conversion techniques, to explore which existing deep learning techniques are used for autopilot test case generation. That is, the synthesis of the driving scene picture is the most effective.
+
+  This work hopes to give some valuable suggestions for the subsequent autopilot system testers to choose the framework of the auto-generated framework for driving scene picture test cases.
 \end{eabstract}
 
 % word count ~ 1000

@@ -551,14 +551,43 @@ $$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_
 \end{table}
 因为图像风格转换技术中，除了Adain Style，其他都是直接使用的文献中给定的pre-trained模型，一般都是VGG网络。在已有的数据中可以看到MUNIT训练用时最长。
 
-\textbf{FID.}\quad 
+\textbf{FID.}\quad 我们参考了文献\cite{FID}，使用代码\cite{git:fid}计算了8个模型合成图的fid值，下表\ref{table:fid}为最后的结果统计数据：
 
-\textbf{方向盘拐角.}\quad 为了测出每个模型最终的合成图对自动驾驶系统的干扰，即合成图的拐角与原图的拐角差，实验中自动驾驶拐角预测模型我们使用了Udacity自动驾驶竞赛中的cg23\cite{cg23}模型。由于模型代码的限制，在输出拐角前还必须对已有的合成图做相应的时间戳标记，这一部分使用了Udacity Driving Reader代码\cite{git:udr}。最终统计的所有模型合成图拐角与原图拐角的均方差如下图：
+\begin{table}[t]
+    \centering
+    \begin{tabular}{|l|*{4}{p{2.5cm}|}}
+        \hline
+        模型 & MUNIT & CycleGAN & EBGAN & AdaIN Style  \\ \hline 
+        FID值 & 185.18924 & 275.04948 & 217.82906 & 88.39498  \\ \hline
+        模型 & Deep Photo Style & Fast Photo Style & Fast Neural Transfer & Texture Nets \\ \hline
+        FID值 & 77.28563 & 139.49777 & 92.61378 & 87.31297 \\ \hline
+    \end{tabular}
+    \caption{FID值统计表}
+    \label{table:fid}
+\end{table}
 
+\textbf{方向盘拐角.}\quad 为了测出每个模型最终的合成图对自动驾驶系统的干扰，即合成图的拐角与原图的拐角差，实验中自动驾驶拐角预测模型我们使用了Udacity自动驾驶竞赛中的cg23\cite{cg23}模型。由于模型代码的限制，在输出拐角前还必须对已有的合成图做相应的时间戳标记，这一部分使用了Udacity Driving Reader代码\cite{git:udr}。下图是MUNIT和CylceGAN的拐角数据，完整的最终统计的所有模型合成图拐角与原图拐角的均方差见附录拐角数据统计表：
+\begin{figure}[h]
+    \includegraphics[width=1.5\textwidth, center]{rmse/1} 
+    \caption{MUNIT}
+\end{figure}
+\begin{figure}[h]
+    \includegraphics[width=1.5\textwidth, center]{rmse/2} 
+    \caption{CycleGAN}
+\end{figure}
 
+图中红色是原图在自动驾驶中的拐角，蓝色是合成图的拐角差，横轴是处于某一时间戳的图片。从数据可以看出对抗生成网络的合成图对自动驾驶系统行为的干扰会比图像风格转换技术合成图造成的干扰大。
 
 \section{实验数据发现总结}[Experiments Findings]
 
-\chapter{相关研究}[Related Work]
+在综合了最后的实验数据，我们有以下几点发现：
 
-\chapter{总结}[Conclusions]
+几乎所有能够实现图像转换的深度学习模型最后的合成图像都对模型的训练数据十分敏感，其中MUNIT最为显著，因为该模型给出的范例有基于路况图片进行转换的示例，但其训练集中，内容图片集合与样式数据集中图片的内容十分接近。由于示例汇中使用的是NVIDIA提供的闭源数据，所以我们不能复现其示例中的实验结果，且我们的数据集中内容数据集(Udacity路况图片集)与样式数据集其内容差距比较明显，所以最终的实现效果较示例中的效果要差很多。
+
+其次相比图像转换技术，对抗生成网络的合成图片中，会新增有很多样式图片集中特有，而原图像没有的元素，比如样式图片集中特有的车辆和树木，经常会出现在最终的合成图片中。而图像转换技术合成图片中，这种情况很少出现。且图像转换技术合成的图片中，主要针对的是对远图像中像素的颜色通道和明暗值做修改，这跟对抗生成网络类的模型有很大的不同。
+
+原本预想中的图像集的FID值与自动驾驶系统行为干扰的强相关并没有出现，但是利用图像转换技术合层的图片，要比使用对抗生成网络模型合成的图片，明显对自动驾驶系统的行为干扰，即方向盘拐角差，要小得多。除此之外，在对比图像中的FID值时，我们发现FID在我们合成的图像集中跟人类主观的图像相近感受并没有明显的正相关关系，比如MUNIT的合成图效果主观上明显要比CycleGAN的何曾图要差，但FID值却小于CycleGAN的FID值。
+
+在模型训练耗时的数据对比中，图像转换技术由于可以直接使用VGG网络，且大多模型都有pre-trained的模型可以使用，所以在这个指标上图像转换技术要由于对抗生成网络大类的模型。
+
+\chapter{相关研究}

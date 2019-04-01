@@ -74,6 +74,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{hithesis}
+\usepackage{caption}
+\usepackage[export]{adjustbox}[2011/08/13]
 \graphicspath{{figures/}}
 \begin{document}
 
@@ -84,7 +86,7 @@
 %\cleardoublepage  自定义在什么位置进行右翻页
 \tableofcontents    % 中文目录
 %\cleardoublepage  自定义在什么位置进行右翻页
-\tableofengcontents % 英文目录,硕本不要求
+% \tableofengcontents % 英文目录,硕本不要求
 
 \mainmatter
 %\linenumbers %debug 选项
@@ -111,11 +113,11 @@
 \input{back/appA.tex}
 \end{appendix}
 %\include{back/publications}    % 所发文章
-\include{back/ceindex}    % 索引, 根据自己的情况添加或者不添加，选择自动添加或者手工添加。
+% \include{back/ceindex}    % 索引, 根据自己的情况添加或者不添加，选择自动添加或者手工添加。
 \authorization %授权
 %\authorization[saomiao.pdf] %添加扫描页的命令，与上互斥
 \include{back/acknowledgements} %致谢
-\include{back/resume}          % 博士学位论文有个人简介
+% \include{back/resume}          % 博士学位论文有个人简介
 
 %本科书序为：
 %\include{body/conclusion}   % 结论
