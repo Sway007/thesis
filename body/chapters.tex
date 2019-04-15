@@ -279,7 +279,7 @@ CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:
     & + L_{GAN}(F,D_X, Y, X) \\
     & + \lambda L_{cyc}(G, F)
 \end{align*}
-这里的$\lambda$控制着两个目标的相对重要性。下图是我们将CycleGAN运用在我们的数据集上,进行了晚上到白天以及黑天场景转换的实验结果样本图。
+这里的$\lambda$控制着两个目标的相对重要性。下图是我们将CycleGAN运用在我们的数据集上,进行了晚上到白天以及黑天场景转换的实验结果样本图以及CycleGAN在其官方给定的数据集上的图像转换效果。
 
 \begin{figure}[h]
     \centering
@@ -292,7 +292,13 @@ CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:
     \subfigure[黑天场景]{
         \includegraphics[width=0.3\textwidth]{results/cyclegan-night}
     }
-    \caption{CycleGAN实验样例图}
+    \subfigure[官方样例-1]{
+        \includegraphics[width=0.45\textwidth]{cyclegan_o_1}
+    }
+    \subfigure[官方样例-2]{
+        \includegraphics[width=0.45\textwidth]{cyclegan_o_2}
+    }
+    \caption{CycleGAN实验样例图以及官方图像转换样例图}
 \end{figure}
 
 % wc ~ 800
@@ -316,7 +322,7 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
 \lambda_x(L_{recon}^{x_1}+L_{recon}^{x_2})+\lambda_c(L_{recon}^{c_1}+L_{recon}^{c_2})+\lambda_s(L_{recon}^{s_1}+L_{recon}^{s_2})
 \end{gather*}
 
-最后我们使用了MUNIT提供的代码，进行了晴天路况图和雪天场景的转换，主要的优化配置参数如下和最终的实验结果样例图如下：
+最后我们使用了MUNIT提供的代码，进行了晴天路况图和雪天场景的转换，主要的优化配置参数如下，最终的实验结果样例及MUNIT官方实验样例图参考图\ref{git:munit}：
 
 \begin{lstlisting}[basicstyle=\small, caption={MUNIT主要优化参数配置}, captionpos=b]
     max_iter: 1000000             # maximum number of training iterations
@@ -338,6 +344,7 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
 \end{lstlisting}
 
 \begin{figure}[h]
+    \centering
     \subfigure[原始图片]{
         \includegraphics[width=.3\textwidth]{results/munit}
     }
@@ -347,7 +354,11 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
     \subfigure[雪天场景2]{
         \includegraphics[width=.3\textwidth]{results/munit_winter2}
     }
+    \subfigure[官方实验样例图]{
+        \includegraphics[width=0.8\textwidth]{munit_o_1}
+    }
     \caption{MUNIT实验样例图}
+    \label{fig:munit}
 \end{figure}
 
 \subsubsection[EBGAN]{EBGAN}
@@ -368,7 +379,7 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
     U(G^*,D^*) \leq U(G,D^*) \quad\quad \forall G
 \end{align*}
 
-我们在已有的数据集上使用了tensorflow实现的EBGAN代码\cite{ebgan-github}，实现了晴天路况到雨天场景的转换，以下是实验结果样例图
+我们在已有的数据集上使用了tensorflow实现的EBGAN代码\cite{ebgan-github}，实现了晴天路况到雨天场景的转换，以下是实验结果样例图及官方人脸合成实验样例图
 
 \begin{figure}[h]
     \centering
@@ -378,7 +389,10 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
     \subfigure[雨天场景]{
         \includegraphics[width=.45\textwidth]{results/ebgan-rain}
     }
-    \caption{}
+    \subfigure[官方人脸合成样例图]{
+        \includegraphics[width=0.8\textwidth]{ebgan_o_1}
+    }
+    \caption{EBGAN实验样例图}
 \end{figure}
 
 % wc ~ 1700
@@ -406,14 +420,16 @@ $$CIN(x;s)=\gamma^*(\frac{x-\mu(x)}{\tau(x)})+\beta^*$$
 训练过程中，样例图片和它的指数$s$被随机从一个固定的样例集合$s\in {1,2,\dots,S}(S=32)$选取。内容图片会被样式转换网络进行转换，该网络中对应的$\gamma^*$和$\beta^*$被用在条件单例正则层里。
 
 总体来说，AdaIN通过转换特征统计量，特别是像素均值和方差，来实现特征空间的样式转换。
-AdaIN在已有的数据集上晴天转雪天、晚上的实验结果样例图如下：
+AdaIN在已有的数据集上晴天转雪天、晚上的实验结果样例图以及官方的庚哥转换实验样例图\ref{fig:adin}。
 \begin{figure}[h]
     \centering
     \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin1}}
     \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin2}}
     \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin3}}
     \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin4}}
+    \subfigure[官方样例图]{\includegraphics[width=.8\textwidth]{adin_o_1}}
     \caption{AdaIN实验结果样例图}
+    \label{fig:adin}
 \end{figure}
 
 % wc ~ 800
@@ -433,7 +449,14 @@ F_{l,c}[O]=F_l[O]M_{l,c}[I]\quad F_{l,c}[S]=F_l[S]M_{l,c}[S]
 $$L_{total}=\sum_{t=1}^L\alpha_lL_C^l+\Gamma\sum_{l=1}^L \beta_lL_{s+}^l +\lambda L_m$$
 这里的$L$是卷积层的层数，$l$表示深度神经网络中的第$l$层。$\Gamma$是控制样式损失函数的权值，$\alpha_l$和$\beta_l$是调试层权重的参数。
 
-由于改模型中实现图片转换需要用到每张图片的语义分割掩图，文献\cite{dpst}中并没有给出生成掩图的代码，目前生成掩图且带有标注功能的开源工具都是基于人工对单张图片进行操作的，故而具体到我们实验的需求，对几万张Udacity数据集进行标注和语义分割，代价太大，因此我们放弃了对该模型进行实验和结果统计。
+由于改模型中实现图片转换需要用到每张图片的语义分割掩图，文献\cite{dpst}中并没有给出生成掩图的代码，目前生成掩图且带有标注功能的开源工具都是基于人工对单张图片进行操作的，故而具体到我们实验的需求，对几万张Udacity数据集进行标注和语义分割，代价太大，因此我们放弃了对该模型进行实验和结果统计。图\ref{fig:dps}是Deep Photo Style Transfer官方风格转换合成效果样例图。
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.85\textwidth]{dps_o_1}
+    \caption{Deep Photo Style Transfer官方实验样例图}
+    \label{fig:dps}
+\end{figure}
 
 % wc ~ 1000
 
@@ -465,11 +488,14 @@ $$Y=F_1(I_C,I_S)=\overline{D}(P_SP_CH_C)$$
     \subfigure[]{\includegraphics[width=.23\textwidth]{fps/night}}
     \subfigure[]{\includegraphics[width=.23\textwidth]{fps/rain}}
     \subfigure[]{\includegraphics[width=.23\textwidth]{fps/snow}}
+    \subfigure[官方实验样例图]{
+        \includegraphics[width=.85\textwidth]{fps_o_1}
+    }
     \caption{Fast Photo Style实验结果样例图}
     \label{fps-result}
 \end{figure}
 
-实际实现中，该算法官方给出了一个提前训练好的模型，其编码器$\varepsilon$使用了VGG-19网络结构中的conv1-1到conv4-1层，其权值由用ImageNet提前训练好的权值给定。训练数据集使用了微软COCO数据集\cite{coco}。我们使用该模型进行了雨天、网上和雪天场景的转换，最终实验结果的样例图见图\ref{fps-result}。
+实际实现中，该算法官方给出了一个提前训练好的模型，其编码器$\varepsilon$使用了VGG-19网络结构中的conv1-1到conv4-1层，其权值由用ImageNet提前训练好的权值给定。训练数据集使用了微软COCO数据集\cite{coco}。我们使用该模型进行了雨天、网上和雪天场景的转换，图\ref{fps-result}展示了最终实验结果样例图以及Fast Photo Style官方图像风格转换实验样例图。
 
 % wc ~ 1000
 % fast photo style要求content和style image内容尽可能相近
@@ -489,6 +515,9 @@ $$W^*=\arg \min_W E_{x,\{y_i\}}\Big[\sum_{i=1}\lambda_i\ell_i(f_W(x),y_i)\Big]$$
     \subfigure[]{\includegraphics[width=.23\textwidth]{FNT/night}}
     \subfigure[]{\includegraphics[width=.23\textwidth]{FNT/fog}}
     \subfigure[]{\includegraphics[width=.23\textwidth]{FNT/snow}}
+    \subfigure[官方实验样例图]{
+        \includegraphics[width=.75\textwidth]{fnt_o_1}
+    }
     \caption{Fast Neural Transfer实验结果样例图}
     \label{fnt-result}
 \end{figure}
@@ -498,7 +527,7 @@ $$\ell_{feat}^{\Theta,j}(\hat{y},y)=\frac{1}{C_jH_jW_j}||\Theta_j(\hat{y})-\Thet
 当输出图片与目标图片的内容差异时特征重建损失函数会惩罚输出图片，对于输入$x$，网络$\Theta$中第$j$层的激活函数记为$\Theta_j(x)$，该函数是形状为$C_j\times H_j\times W_j$的特征图谱，定义Gram矩阵为$C_j\times C_j$的方阵，其元素有下面的公式给定
 $$G_j^{\Theta}(x)_{c,\hat{c}}=\frac{1}{C_jH_jW_j}\sum_{h=1}^{H_j}\sum_{w=1}^{W_j}\Theta_j(x)_{h,w,c}\Theta_j(x)_{h,w,\hat{c}}$$
 
-除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。图\ref{fnt-result}为该算法在我们的数据集上实验的结果样例图。 
+除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。图\ref{fnt-result}为该算法在我们的数据集上实验的结果样例图以及Fast Neural Transfer官方的实验结果样例图。 
 
 % wc ~ 800
 
@@ -517,11 +546,14 @@ $$L_C(x;y)=\sum_{l\in L_C}\sum_{i=1}^{N_t}||F_i^l(x)-F_i^l(y)||_2^2$$
 
 算法中具体的学习过程是通过调整生成器$g(y_i,z_i;\theta)$参数$\theta$来最小化内容和纹理损失函数的组合值：
 $$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_C(g(y,z;\theta),y)]$$
-这里的$Z$表示纹理合成图片的噪声分布，$y$是真实图片的实际分布，$\alpha$是平衡纹理/样式和内容的参数。图\ref{tn-example}为该模型的最终实验结果样例图。
+这里的$Z$表示纹理合成图片的噪声分布，$y$是真实图片的实际分布，$\alpha$是平衡纹理/样式和内容的参数。图\ref{tn-example}为该模型的最终实验结果样例图以及Texture Nets官方实验结果样例图。
 \begin{figure}[h]
     \centering
     \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/1}}
     \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/2}}
+    \subfigure[官方实验样例图]{
+        \includegraphics[width=.7\textwidth]{tn_o_1}
+    }
     \caption{Texture Nets实验结果样例图} 
     \label{tn-example}
 \end{figure}
@@ -530,7 +562,7 @@ $$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_
 
 \chapter{发现}[Findings]
 
-本章主要对前一章的实验数据进行统计和经验性总结。
+本章主要对前一章的实验数据进行统计和经验性总结。并试图通过对已有的实验数据总结回答以下问题：适合自动驾驶系统测试用例生成的对抗生成网络和图像风格转换技术的路况图像实际合成效果如何？各个模型的实际训练效率如何？哪个或哪几个深度学习模型总体是最适合自动驾驶系统测试用例的自动生成？
 
 \section{实验数据统计}[Experiments Statistics]
 
@@ -596,4 +628,3 @@ $$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_
 
 在模型训练耗时的数据对比中，图像转换技术由于可以直接使用VGG网络，且大多模型都有pre-trained的模型可以使用，所以在这个指标上图像转换技术要由于对抗生成网络大类的模型。
 
-\chapter{相关研究}
