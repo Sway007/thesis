@@ -3,6 +3,8 @@
   \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 \newcommand{\mthead}[1]{\textit{\textbf{#1}}}
 
+\newcommand{\newmodel}[1]{\textbf{#1.}\cite{#1}\quad}
+
 \chapter{绪论}[Introduction]
 
 \section{背景}[Background]
@@ -216,7 +218,7 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
     \label{fig:filtering}
 \end{figure}
 
-在有了足量的数据集后，基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，为了对目前所有的对抗生成网络技术能有一个综合的认识，我们首先参考了文献\cite{gan-survey}，其中给出了目前学术界最为主流、为人熟知的几个模型算法：cGAN\cite{cGAN}，DCGAN\cite{dcgan}，LAPGAN\cite{LAPGAN}和EBGAN\cite{ebgan}。我们一次对上述算法模型都进行了实验，但是其中dcGAN和LAPGAN在论文中没有开放其实验源码，且DCGAN在我们已有的路况图片数据集上的实验效果十分不理想，于是在实验初期我们排除了这几个模型。
+在有了足量的数据集后，基于DeepRoad的工作，我们首先选择实验的DNN模型大类是对抗生成网络\cite{GAN}，因为其生成仿照数据的功能契合我们对于合成驾驶场景图片的需求，为了对目前所有的对抗生成网络技术能有一个综合的认识，我们首先参考了文献\cite{gan-survey}，其中给出了目前学术界最为主流、为人熟知的几个模型算法：cGAN\cite{cGAN}，DCGAN\cite{dcgan}，LAPGAN\cite{LAPGAN}和EBGAN\cite{ebgan}等。我们一次对上述算法模型都进行了实验，但是其中dcGAN和LAPGAN在论文中没有开放其实验源码，且DCGAN在我们已有的路况图片数据集上的实验效果十分不理想，于是在实验初期我们排除了这几个模型。
 
 在实验过上述模型后，我们通过Google搜索引擎，论文引用等途径陆续又发现了对抗生成网络中可以实现图像合成的几个模型，其中有一类是属于图片合成的输入需要有一张大致的纹理图，即给定一张样本纹理图和一组待转换的原图，输出为纹理跟输入纹理图一致的一组合成图，很明显这根我们的实验目的不匹配，因此被排除了。这一大类的模型有：MGAN\cite{MGAN}，SGAN\cite{SGAN}和PSGAN\cite{PSGAN}。
 
@@ -235,9 +237,6 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 以上是我们对实验模型筛选的大致历程，下面简单的介绍一下对抗生成网络的背景以及选择的对应模型。
 
-% TODO:添加一小节说明模型的筛选历程　
-% 图像风格迁移大部分是艺术照效果，故排除
-
 \subsection{对抗生成网络大类}[Generative Adversarial Network Class]
 
 对抗生成网络\cite{GAN}首先由Ian J. Goodfellow等人提出，它的本质是模拟真实数据源的概率分布。其基本框架有两个神经网络组成：生成模型网络和判别模型网络，其中判别模型负责学习区分数据是否来自真实数据分布，而生成模型可以想象成一个制造伪币的团伙，试图产生能够通过货币监测的钞票，判别模型正是这个对抗游戏中的警察，试图甄别出货币中的假钞。整个对抗生成网络模型的训练过程就是对抗模型和生成模型的训练竞赛，整个训练过程直到判别模型再也区分不出数据是来自真实数据分布还是生成模型伪造的数据为止。
@@ -250,7 +249,20 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 实际训练过程中，等式\eqref{eq:gan}中的生成器$G$可能会出现梯度消失的问题，但由于本文章不是对对抗生成网络算法的研究，所以就不在此展开了。实验过程中为了保持尽量跟框架作者实现的效果性能一致，我们只选取了提供了源代码的框架进行了实验。
 
 % TODO: confirm this
-\textbf{统一说明}，本文后续所有的实验均是在64位Ubuntu 16.04.6 LTS操作系统，8核GTX 1080ti-GPU硬件环境下进行的。
+\textbf{统一说明}，本文后续所有的实验均是在64位Ubuntu 16.04.6 LTS操作系统，8核GTX 1080ti-GPU硬件环境下进行的。以下介绍在本次实证研究中所有实验过用于图像风格转换的深度学习模型。
+
+\subsubsection{cGAN}
+
+\textbf{cGAN.}\cite{cGAN}\quad 对抗生成网络一般有两个对抗模型组成：一个可以捕捉到真实数据分布的生成模型$G$和一个能够计算样本来自训练数据集而不是$G$的概率的模型$D$。$D$和$G$都是非线性映射函数，比如多层感知器网络。如果生成器和判别器都限定于一些额外信息$y$上，则对抗生成网络可以被拓展成一个条件模型。其中$y$可以使任意类型的辅助信息，比如来自其他模型的数据或标记。cGAN通过将数据信息$y$送入判别器和生成器中作为额外的输入层来实现条件限制。在生成器中先验噪声输入$p_z(z)$和$y$被混合在联合隐藏层中，在判别器中$x$和$y$代表判别函数的输入，cGAN的目标函数可以表示为：
+$$min_G max_D V(D,G)=\mathbb{E}_{\x\sim p_{data}(x)}[\log D(x|y)]+\mathbb{E}_{z\sim p_z(z)}[\log(1-D(G(z|y)))]$$
+
+因为文献中\cite{cGAN}主要对MNIST\cite{mnist}数据集进行了数字模拟合成，在已有的路况图像数据集上实验的结果很不理想，且文献中提供的代码对数据集的要求也与一般的模型输入不一样，需要额外的处理，因而我们放弃了在该模型上的进一步实验与数据统计。 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.65\textwidth]{results/cgan}
+    \caption{cGAN在MNIST数据集上的数字合成图片样例}
+\end{figure}
 
 \subsubsection{DCGAN}[DCGAN]
 
@@ -285,6 +297,16 @@ DCGAN主要目的是找到一个方法能够对图像进行特征重建及特征
 \end{lstlisting}
 
 由于DCGAN在驾驶路况图片上的合成效果很差，于是我们放弃了对该框架进一步的实验结果数据统计与总结。
+
+\subsubsection{LAPGAN}
+
+\newmodel{LAPGAN} 该模型利用了图像的多尺度结构，针对每个尺度构建了一系列的生成模型，每个模型都在特定尺度的拉普拉斯算子\cite{lapcode}上捕获到了图像的结构特征。这种方法将原来的图像转换问题成功地分解成了一系列可控状态，对于每个状态都可以使用一般的对抗生成网络结构训练一个基于卷积神经网络的生成模型。
+
+在视觉应用，比如目标分类中的判别模型中，使用深度学习的方法常常十分有效。但是对于生成模型，尽管进行了相当多的研究\cite{lapgan1}\cite{lapgan2}\cite{lapgan3}，却往往没有取得同等级别的成功。基于这样的问题，LAPGAN提出了模型在生成模型的训练效果上取得了巨大的改进。模型中使用的拉普拉斯算子是由一组图像的线性非可逆表征组成。具体的，使$d(\cdot)$表示模糊化$i\times j$图像$I$的缩减采样算子，则$d(I)$表示尺度为$j/2\times l/2$的新图像。类似地，令$u(\cdot)$表示将图像$I$光滑化的升采样算子，$u(I)$表示尺度为$2j\times 2j$的新图像。算法中首先构建一个高斯拉普拉斯算子$\mathbb{G}(I)=[I_0,I_1,\dots,I_K]$，这里的$I_0=I$和$I_k$表示$d(\cdot)$对$I$的$k$次重复操作。$K$是该算子中的层数。拉普拉斯网络中每一层$k$的系数$h_k$都是由邻近层中的距离计算构成，对图像使用算子$u(\cdot)$进行升采样操作：
+$$h_k=\mathbb{L}_k(I)=\mathbb{G}(I)-u(\mathbb{G}_{k+1}(I))=I_k-u(I_{k+1})$$
+每层都很直观的包含了特定尺度的图像结构信息。拉普拉斯算子$h_k$的最终结构是一张不同的图像。以此为基础可成功的重构一张新图像。
+
+该算法文献\cite{LAPGAN}中在CIFAR10数据集上进行了图像转换实验，但实验的代码没有进行开源，因此我们暂时性的忽略了该算法的实验。将来该算法代码开源后我们会针对该算法进行补充实验和数据统计。 
 
 % wc ~ 1200
 
@@ -354,6 +376,10 @@ CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并
 
 % wc ~ 800
 
+\subsubsection{WGAN}
+
+\newmodel{WGAN} 
+
 \subsubsection{MUNIT}[MUNIT]
 
 \textbf{MUNIT.}\cite{MUNIT}\quad MUNIT是基于UNIT\cite{UNIT}工作的进一步优化。它主要针对的问题时候多类图像间的图像转换问题。比如一个冬天的道路场景在夏天可能会依天气、时间等因素的不同而有很多种不同的外在形式。CycleGAN希望其生成器能够包含一个场景中尽可能多的表征空间。
@@ -416,6 +442,21 @@ $$L_{recon}^{x_1}=E_{x_1\sim o(x_1)}[||G_1(E_1^c(x_1), E_1^s(x_1))-x_1||_1] $$
 
 \subsubsection[EBGAN]{EBGAN}
 
+\begin{figure}[b]
+    \centering
+    \subfigure[原始图片]{
+        \includegraphics[width=.45\textwidth]{results/ebgan-input}
+    }
+    \subfigure[雨天场景]{
+        \includegraphics[width=.45\textwidth]{results/ebgan-rain}
+    }
+    \subfigure[官方人脸合成样例图]{
+        \includegraphics[width=0.8\textwidth]{ebgan_o_1}
+    }
+    \caption{EBGAN实验样例图}
+    \label{fig:ebgan}
+\end{figure}
+
 \textbf{EBGAN.}\cite{ebgan}\quad 的核心思想是将判别器视为一个能量函数而不是通常的概率函数。它构建了一个函数能将输入空间中的每个点映射成为一个单标量，并且提出了对抗生成模型训练的一个基于能量表达的公式。由判别器计算出来的能量函数可以被视作生成器的可训练代价函数。虽然可以将能量函数通过Gibbs分布转换成概率函数，但是基于它提出的基于能量形式的对抗生成网络由于缺少归一化，从而使我们在判别器的架构和训练过程中有了更多的选择。EBGAN的学习构成是由数据驱动，定型能量函数是的好的模型参数配置获得低能量而不好的配置参数获得高能量。这种训练书序监督学习的一种：对于每训练集中的每个$X$，一种$(X,Y)$的能量只有当$Y$是好的配置参数时才会获得低能量，反之获得高能量。下面简单阐述一下EBGAN的基本原理。
 
 将$p_{data}$视作产生真实数据集分布的概率密度函数，生成器$G$训练生成赝本数据$G(z)$。为了定义能量函数，判别器的输出通过一个目标泛函算子进行转换，将低能量视为真实样本数据，而高能量则为合成的伪数据。跟一般的对抗生成网络一样，EBGAN也使用了两个不同的损失函数来分别训练生成器和判别器。
@@ -436,19 +477,36 @@ EBGAN打通了两类不同的非监督学习方法：对抗生成网络和自动
 
 我们在已有的数据集上使用了tensorflow实现的EBGAN代码\cite{ebgan-github}，实现了晴天路况到雨天场景的转换，图\ref{fig:ebgan}是实验结果样例图及官方人脸合成实验样例图。
 
+\subsubsection{LSGAN}
+
+\newmodel{LSGAN} 一般的GAN模型都使用sigmoid交差熵作为判别器的损失函数，使用这类损失函数都存在一个问题，就是在模型训练过程中很容易出现梯度消失的问题，导致最后合成的数据离真实数据分布相差较大。针对这一问题LSGAN提出使用最小方差函数最为判别器的损失函数，因为最小方差损失函数能够使判别器对接近判断边界的伪数据做出惩罚。除此之外，LSGAN还能提高模型训练过程的稳定性。文献\cite{LSGAN}提到实验结果显示LSGAN合成的数据别一般的GAN合成输数据更接近与真实数据分布。该算法的目标损失函数为：
+\begin{align*}
+    & \min_D V_{LSGAN}(D)=\frac{1}{2}\mathbb{E}_{x\sim p_{data}(x)}[(D(x)-b)^2]+\frac{1}{2}\mathb{E}_{z\sim o_z(z)}[(D(G(z))-z)^2] \\
+    & \min_G V_{LSGAN}(G)=\frac{1}{2}\mathb{E}_{z\sim p_z{z}}[(D(G(z))-c)^2]
+\end{align*}
+
+下图\ref{fig:lsgan}是LSGAN和一般的GAN图像合成样本的对比图。
+
 \begin{figure}[h]
     \centering
-    \subfigure[原始图片]{
-        \includegraphics[width=.45\textwidth]{results/ebgan-input}
-    }
-    \subfigure[雨天场景]{
-        \includegraphics[width=.45\textwidth]{results/ebgan-rain}
-    }
-    \subfigure[官方人脸合成样例图]{
-        \includegraphics[width=0.8\textwidth]{ebgan_o_1}
-    }
-    \caption{EBGAN实验样例图}
-    \label{fig:ebgan}
+    \includegraphics[width=\textwidth]{results/lsgan}
+    \caption{LSGAN合成图像对比图}
+    \label{fig:lsgan}
+\end{figure}
+
+由于文献中的将实验代码没有开源，于是我们利用DCGAN的源码将其判别器的损失函数改为文献中提到了最小方差函数，但是最后的实验结果跟DCGAN的实验结果相差不大。基于较差的实验结果我们舍弃了该模型实验结果的数据统计和总结。
+
+\subsubsection{MGAN}
+
+\newmodel{MGAN} 大部分用于图像合成的对抗生成网络技术都是使用马尔可夫随机场来处理图像复杂的限制特征，这些马尔可夫随机场也通常是使用像素块的统计数据来表征图像的。这类技术通常分为两类：合成完整图像的全图像模型和只合成图像纹理层的马尔科夫模型。MGAN主要的改进是提升了深度马尔科夫模型对纹理合成的效率与质量。文献\cite{MGAN}中使用对抗训练\cite{adtrain}算法训练卷积神经网络，这样可以维持与原图几乎不变的图片质量，同时极大地提升了图像合成速度，40ms内合成一张$512\times 512$图像，其中硬件条件为TitanX GPU。
+
+因为MGAN的优化主要针对人脸合成类别，且与传统的图像合成技术类似，合成图片具有明显的艺术风格。我们利用文献中提供的代码\cite{git:mgan}在我们的路况图像数据集上实验结果跟文献中的实验结果一致，具有太明显的艺术风格，因而在最后的实验数据统计和总结环节我们没有考虑该模型的实验数据。下图\ref{fig:mag}为MGAN的实验数据样例图。
+
+\begin{figure}[h] 
+    \centering
+    \includegraphics[width=.9\textwidth]{results/mgan}
+    \caption{MGAN实验样例图}
+    \label{fig:mag}
 \end{figure}
 
 % wc ~ 1700
@@ -610,6 +668,8 @@ $$G_j^{\Theta}(x)_{c,\hat{c}}=\frac{1}{C_jH_jW_j}\sum_{h=1}^{H_j}\sum_{w=1}^{W_j
 除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。图\ref{fnt-result}为该算法在我们的数据集上实验的结果样例图以及Fast Neural Transfer官方的实验结果样例图。 
 
 % wc ~ 800
+
+\subsubsection{Texture Nets}
 
 \textbf{Texture Nets.}\cite{texture-nets}\quad 使用了前向生成网络来实现图像合成和风格化功能。该算法主要针对图像的纹理风格转换，文献\cite{texture-nets}中指出图片的纹理数据分布可由样本纹理数据$x_0$推导出，比如$x\sim p(x|x_0)$。在风格迁移中，分布是由图像$x_0$的视觉样式表征和另一张图片$x_１$的视觉内容表征推导出。特别的，为了从样本图片$x_0$合成纹理，这个问题可以表示为：
 $$\min_{x\in \chi}||\Phi(x)-\Phi(x_0)||_x^2$$
