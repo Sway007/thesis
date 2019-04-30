@@ -373,12 +373,13 @@ CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并
 
 图\ref{fig:cyclegan}是我们将CycleGAN运用在我们的数据集上,进行了晚上到白天以及黑天场景转换的实验结果样本图以及CycleGAN在其官方给定的数据集上的图像转换效果。 
 
-
 % wc ~ 800
 
 \subsubsection{WGAN}
 
-\newmodel{WGAN} 
+\newmodel{WGAN} 该算法相较其他的GAN模型的主要改进依然是提升了模型训练的稳定性和收敛速度。WGAN提出了Earth-Mover距离，并证明了该距离比其他的距离尺度指标能产生更好的梯度，从而提升训练速度。此外它关于判别器网络还去掉了对应了sigmoid层，在对抗损失函数中去掉了log函数，有效地避免的类似模型塌缩等问题。理论上图像合成的效果要好于DCGAN。
+
+因为WGAN文献中只给出了算法的核心思想，没有给出实验源码。我们参考文献中提供的算法，实现了WGAN的图像转换代码，但是在路况图像数据集上的实验结果十分不理想，合成的图像与原图像在语义上相差甚远，我们猜测可能是算法实现没有成功导致，最终我们没有将该实验结果纳入最后的实验数据总结和统计中。
 
 \subsubsection{MUNIT}[MUNIT]
 
@@ -507,6 +508,36 @@ EBGAN打通了两类不同的非监督学习方法：对抗生成网络和自动
     \includegraphics[width=.9\textwidth]{results/mgan}
     \caption{MGAN实验样例图}
     \label{fig:mag}
+\end{figure}
+
+\subsubsection{BEGAN}
+
+\newmodel{BEGAN}  该模型跟EBGAN\cite{ebgan}一样使用了自动编码器作为判别器。虽然一般典型的对抗生成网络模型都直接匹配数据分布，但是BEGAN的目的是利用从Wasserstein距离中推到出了损失函数，来匹配自动编码器损失值。分布。实际的模型算法中，使用了一个典型的对抗生成网络目标函数，加上一个额外的平衡判别器和生成器的平衡因子。这样使得模型的训练更加容易。文献\cite{BEGAN}中对于自动编码器使用的损失函数$\mathb{L}:\mathbb{R}^{N_x}\to \mathbb{R}^+$为：
+$$
+\mathb{L}(v) = |v-D(v)|^\eta where \begin{cases}
+    D: \mathbb{R}^{N_x}\to \mathbb{R}^{N_x} \quad  \\
+    \eta \in \{1,2\} \quad  \\
+    v \in \mathbb{R}^{N_x} 
+\end{cases}
+$$
+
+模型总体的目标函数可表示为：
+
+$$
+\begin{cases}
+    L_D = L(x) - k_t\cdotL(G(z_D)) & for \theta_D \\
+    L_G = L(G(z_G)) & for \theta_G \\
+    k_{t+1} = k_t + \lambda_k(\gammaL(x)-L(G(z_G))) 
+\end{cases}
+$$
+
+我们参照文献中的代码实现了WGAN的人脸图像合成，但将数据源换成我们的路况图像数据集后，程序出现了未知的bug，导致最终的路况图像合成实验没能完成。下图\ref{fig:began}为BEGAN的人脸合成结果样例图。
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width = .8\textwidth]{results/began}
+    \caption{BEGAN人脸合成样例图}
+    \label{fig:began}
 \end{figure}
 
 % wc ~ 1700
@@ -667,6 +698,31 @@ $$G_j^{\Theta}(x)_{c,\hat{c}}=\frac{1}{C_jH_jW_j}\sum_{h=1}^{H_j}\sum_{w=1}^{W_j
 
 除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。图\ref{fnt-result}为该算法在我们的数据集上实验的结果样例图以及Fast Neural Transfer官方的实验结果样例图。 
 
+\subsubsection{UDPIR} 
+
+\newmodel{UDPIR} 该算法的主要改进点在于它提出图像逆反表示的一种方法，该方法只利用图像表征的信息，以随机噪声图片为初始值，从而可以只包含表征自身的数据信息。图像的逆反表征问题本质上是寻找一张表征与给定图像最为接近和匹配的图片，即给定表征函数$\Phi:\mathbb{R}^{H\times W\times C}\to \mathbb{R}^d$和逆反表征$\Phi_=\Phi(x_0)$，图像可通过最小化下面的目标函数实现重建：
+$$x^*=\min_x\in \mathbb{R}^{H\times W\times C}\mathb{l}(\Phi(x),\Phi_0)+\lambda\mathb{R}(x)$$
+此处的$\mathb{l}$表示重建图像的表征与给定图像表征之间的距离，文献中具体的函数使用里欧几里得距离函数：
+$$\mathb{l}(\Phi(x),\Phi_0)=||\Phi(x)-\Phi_0||^2$$
+算法的具体实现中，依然采用了提前训练好的VGG19卷积神经网络的结构来重建图像，由于文献中没有给出官方的实验代码，我们依照文献中的方法复现了MNIST数据集中数字图像的重建，但是后面试图对路况图像进行重建实验中我们发现，该算法对于数据集中$256\times 256$图片的重建合成耗时过长，约2小时一张，效率过低，因此我们放弃了对该模型的进一步实验。
+
+\subsubsection{Targeted Style Transfer}
+
+\newmodel{Targeted-Style-Transfer} 该算法不同之处在于只修改目标图像的某一部分而不是全部，比如只修改图片中的某一个物体而不改变物体的背景和周围场景。算法实现中除了使用了基于深度神经网络的图片修改技术还需要图像语义分割技术的协助，在物体边界的光滑化和去锯齿化中使用了马尔可夫随机场模型。
+
+算法的具体实现是基于Gatys提出的图像风格转换技术\cite{nst}，给定包含了指定风格的原图片$s$，和目标转换图片$t$，算法目标是将图像$x$转换到风格与$t$类似的新图像中，但是其中的纹理信息保留。以上可以用下面的最小方差函数表示：
+$$\min_x ||F(x)-F(t)||^2+||C(x)-C(s)||^2$$
+$F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\cdot)$是将图像映射到对应特征空间协方差的映射函数。
+
+下图\ref{fig:tst}是Targeted Style Transfer的实验样例图，在实现我们的路况图像风格转换实验中，由于我们的需求往往是对道路或者天气的像素风格转换，而且转换后㛑需要对整个图像的整体风格也要做相应的调整，从而使得合成图像尽可能的真实。这使得我们需要对原始图片做大量的语义分割工作，而目前还没有专门这对这类工作的自动化流程代码出现，这使得我们要对整个路况图像库坐语义分割的预处理变得成本巨大，导致难以实现，因此我们也放弃了对该模型的进一步实验。 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.8\textwidth]{results/tst}
+    \caption{Targeted Style Transfer实验样例图片}
+    \label{fig:tst}
+\end{figure}
+
 % wc ~ 800
 
 \subsubsection{Texture Nets}
@@ -702,7 +758,7 @@ $$\theta_{x_o}=\min_{\theta}E_{z\sim Z;y\sim Y}[L_T(g(y,z;\theta),x_0)+\alpha L_
 
 \section{本章小结}
 
-本章主要介绍了该实证研究项目的实验方法设计：即实验数据比较指标的设计，实验比较模型的筛选历程，以及对选取的每个模型进行了简要的原理介绍。在模型筛选过程中本实验初期进行了大量的实验，由前文介绍的，最终由于种种原因：源码未开放，无法针对每个技术模型收集到最匹配的训练数据集，合成图与我们路况天气风格转换与合成的需求有较大出入等原因进行了大量的取舍，最终参与实验最后数据的统计与比较的一共有8个DNN模型，主要为对抗生成网络和图像风格转换迁移技术。
+本章主要介绍了该实证研究项目的实验方法设计：即实验数据比较指标的设计，实验比较模型的筛选历程，以及对选取的每个模型进行了简要的原理介绍。在模型筛选过程中本实验初期进行了大量的实验，由前文介绍的，最终由于种种原因：源码未开放，无法针对每个技术模型收集到最匹配的训练数据集，合成图与我们路况天气风格转换与合成的需求有较大出入等原因进行了大量的取舍，最终记录在论文中的是我们重点实验过的模型，参与实验最后数据的统计与比较的一共有8个DNN模型，主要为对抗生成网络和图像风格转换迁移技术。
 
 此外所有的实验都是在Ubuntu 16.04 LTS操作系统，8核GeForce GPU的计算机上进行的，所有的合成图像数据统一使用Python pickle包压缩后存储于MySQL数据库中，未来计划开源在github上。
 
