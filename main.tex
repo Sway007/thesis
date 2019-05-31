@@ -1,5 +1,5 @@
 % !Mode:: "TeX:UTF-8"
-\documentclass[newtxmath=true,newgeometry=two,capcenterlast=true,subcapcenterlast=true,openright=true,absupper=true,fontset=windowsnew,type=master]{hithesis}
+\documentclass[newtxmath=true,newgeometry=two,capcenterlast=true,subcapcenterlast=true,openright=true,absupper=true,fontset=windowsnew,type=master]{hithesis} 
 % 此处选项中不要有空格
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 必填选项
@@ -74,15 +74,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{hithesis}
+\usepackage{url}
 \usepackage{caption}
 \usepackage[export]{adjustbox}[2011/08/13]
-\graphicspath{{figures/}}
+\graphicspath{{figures/}}　
 \begin{document} 
 
 \frontmatter
 \input{front/cover} % 封面
 \makecover
-\input{front/denotation}%物理量名称表,符合规范为主，有要求添加
+% \input{front/denotation}%物理量名称表,符合规范为主，有要求添加
 %\cleardoublepage  自定义在什么位置进行右翻页
 \tableofcontents    % 中文目录
 %\cleardoublepage  自定义在什么位置进行右翻页
@@ -101,10 +102,11 @@
 %\floatdesign %debug 选项
 %\caption{Float layout with rules}\label{fig:fludf} %debug 选项
 %\end{figure} %debug 选项
-\include{body/chapter1}
-\include{body/chapter2}
-\include{body/chapter3}
+\include{body/chapter1} 
+% \include{body/chapter2}
 \include{body/chapter4}
+\include{body/chapter_nst}
+\include{body/chapter_finding}
 
 \backmatter
 %硕博书序
