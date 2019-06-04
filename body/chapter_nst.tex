@@ -48,17 +48,6 @@
 
 \textbf{AdaIN-style.}\cite{adain}\quad AdaIN Style主要针对Gatys提出的Neural Style Transer算法中，模型的训练需要一个很慢的迭代优化算法，这大大延长了模型的训练时间，其限制了它在很多场景下的实用价值。因此AdaIN Style提出使用前向传播神经网络的快速逼近算法来加速图像风格转换技术。但是速度的提升也会导致网络限制在了固定的一套风格集中，而无法使用到任意的风格集中。针对以上问题AdaIN Style提出了可以实时转换任意风格的框架。
 
-\begin{figure}[ht]
-    \centering
-    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin1}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin2}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin3}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{adin/adin4}}
-    \subfigure[官方样例图]{\includegraphics[width=.8\textwidth]{adin_o_1}}
-    \caption{AdaIN实验结果样例图}
-    \label{fig:adin}
-\end{figure}
-
 文献\cite{ioffe}提出批量正则化层极大的简化了向前传播网络的训练，AdaIN-style的模型结构也使用了批量正则化层，并且在次基础上通过将该层的激活函数改为单例正则，训练性能得到的巨大提升：
 \begin{align}
     IN(x)=\gamma(\frac{x-\mu(x)}{\tau(x)})+\beta
@@ -71,8 +60,21 @@
 \end{align}
 训练过程中，样例图片和它的指数$s$被随机从一个固定的样例集合$s\in {1,2,\dots,S}(S=32)$选取。内容图片会被样式转换网络进行转换，该网络中对应的$\gamma^*$和$\beta^*$被用在条件单例正则层里。
 
-总体来说，AdaIN通过转换特征统计量，特别是像素均值和方差，来实现特征空间的样式转换。除此之外，AdaIN Style加深了深度图像表征的理解。其与Gatys提出的Neural Style Transfer主要区别在于两者之间的优化过程和具体的优化函数的不同，AdaIN Style的网络结构也可以多变，而不局限于卷积神经网络一种。此外AdaIN Style相较于Gatys等人提出的原始算法，其算法图像合成速度在原来的基础上有近720倍的提升\cite{adin-github}，且没有任何性能上的损失。在具体的风格转换实现中，该算法也提供了可以在多种风格之间以权值相加的方式融合新的风格的方法。算法中使用的网络模型是基于MSCOCO\cite{mscoco}数据集训练的。
-AdaIN在已有的数据集上晴天转雪天、晚上的实验结果样例图以及官方的庚哥转换实验样例图\ref{fig:adin}。
+总体来说，AdaIN通过转换特征统计量，特别是像素均值和方差，来实现特征空间的样式转换。除此之外，AdaIN Style加深了深度图像表征的理解。其与Gatys提出的Neural Style Transfer主要区别在于两者之间的优化过程和具体的优化函数的不同，AdaIN Style的网络结构也可以多变，而不局限于卷积神经网络一种。此外AdaIN Style相较于Gatys等人提出的原始算法，其算法图像合成速度在原来的基础上有近720倍的提升\cite{adin-github}，且没有任何性能上的损失。在具体的风格转换实现中，该算法也提供了可以在多种风格之间以权值相加的方式融合新的风格的方法。算法中使用的网络模型是基于MSCOCO\cite{mscoco}数据集训练的。图\ref{fig:adin}为AdaIN Style的实验样例图。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.23\textwidth]{adin/adin1}
+    \includegraphics[width=.23\textwidth]{adin/adin2}
+    \includegraphics[width=.23\textwidth]{adin/adin3}
+    \includegraphics[width=.23\textwidth]{adin/adin4}
+    \includegraphics[width=.23\textwidth]{models/adain/1}
+    \includegraphics[width=.23\textwidth]{models/adain/2}
+    \includegraphics[width=.23\textwidth]{models/adain/3}
+    \includegraphics[width=.23\textwidth]{models/adain/4}
+    \caption{AdaIN实验结果样例图}
+    \label{fig:adin}
+\end{figure}
 
 % wc ~ 800
 
@@ -97,12 +99,15 @@ AdaIN在已有的数据集上晴天转雪天、晚上的实验结果样例图以
 
 Deep Photo Style Transfer也使用了提前训练好的VGG-19\cite{vgg-19}网络作为特征提取器，选用$conv4\_2$作为内容表征，$conv1\_1,conv2\_1,conv3\_1,conv4\_1$和$conv5\_1$作为风格表征，使用参数$\Gamma=10^2,\lambda=10^4$作为所有结果的偏好参数。
 
-由于该模型中实现图片转换需要用到每张图片的语义分割掩图，文献\cite{dpst}中并没有给出生成掩图的代码，目前生成掩图且带有标注功能的开源工具都是基于人工对单张图片进行操作的，故而具体到我们实验的需求，对几万张Udacity数据集进行标注和语义分割，代价太大，因此我们只选用了部分数据集对该模型进行实验和结果统计。图\ref{fig:dps}是Deep Photo Style Transfer官方风格转换合成效果样例图。
+由于该模型中实现图片转换需要用到每张图片的语义分割掩图，文献\cite{dpst}中并没有给出生成掩图的代码，目前生成掩图且带有标注功能的开源工具都是基于人工对单张图片进行操作的，故而具体到我们实验的需求，对几万张Udacity数据集进行标注和语义分割，代价太大，因此我们只选用了部分数据集对该模型进行实验和结果统计。图\ref{fig:dps}是Deep Photo Style Transfer实验样例图。
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=.85\textwidth]{dps_o_1}
-    \caption{Deep Photo Style Transfer官方实验样例图}
+    \includegraphics[width=.23\textwidth]{models/adain/1}
+    \includegraphics[width=.23\textwidth]{models/adain/2}
+    \includegraphics[width=.23\textwidth]{models/adain/3}
+    \includegraphics[width=.23\textwidth]{models/adain/4}
+    \caption{Deep Photo Style Transfer实验样例图}
     \label{fig:dps}
 \end{figure}
 
@@ -136,22 +141,18 @@ PhotoWCT是基于WCT\cite{wctp}算法，为了实现真实的图片样式合成�
 \end{align}
 这里的$\overline{D}$是解码器，包含了池化层的信息，用作后面的图片重构。图片\ref{wctf}展示了PhotoWCT和WCT之间的网络结构差异。
 
-\begin{figure}[t]
+实际实现中，该算法官方给出了一个提前训练好的模型，其编码器$\varepsilon$使用了VGG-19网络结构中的conv1-1到conv4-1层，其权值由用ImageNet提前训练好的权值给定。训练数据集使用了微软COCO数据集\cite{coco}。总体来说，Fast Photo Style是一个能够实现快速合成真实图片风格转换的技术，它主要由格式化步骤和真实光滑化(photorealistic smoothing)步骤组成。该算法对上述两个步骤都给出了有效地闭环解决方案。
+
+我们使用该模型进行了雨天、网上和雪天场景的转换，图\ref{fps-result}展示了最终实验结果样例图。
+\begin{figure}[h]
     \centering
-    \subfigure[]{\includegraphics[width=.23\textwidth]{fps/origin}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{fps/night}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{fps/rain}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{fps/snow}}
-    \subfigure[官方实验样例图]{
-        \includegraphics[width=.85\textwidth]{fps_o_1}
-    }
+    \includegraphics[width=.23\textwidth]{fps/origin}
+    \includegraphics[width=.23\textwidth]{fps/night}
+    \includegraphics[width=.23\textwidth]{fps/rain}
+    \includegraphics[width=.23\textwidth]{fps/snow}
     \caption{Fast Photo Style实验结果样例图}
     \label{fps-result}
 \end{figure}
-
-实际实现中，该算法官方给出了一个提前训练好的模型，其编码器$\varepsilon$使用了VGG-19网络结构中的conv1-1到conv4-1层，其权值由用ImageNet提前训练好的权值给定。训练数据集使用了微软COCO数据集\cite{coco}。总体来说，Fast Photo Style是一个能够实现快速合成真实图片风格转换的技术，它主要由格式化步骤和真实光滑化(photorealistic smoothing)步骤组成。该算法对上述两个步骤都给出了有效地闭环解决方案。
-
-我们使用该模型进行了雨天、网上和雪天场景的转换，图\ref{fps-result}展示了最终实验结果样例图以及Fast Photo Style官方图像风格转换实验样例图。
 
 % wc ~ 1000
 % fast photo style要求content和style image内容尽可能相近
@@ -159,19 +160,6 @@ PhotoWCT是基于WCT\cite{wctp}算法，为了实现真实的图片样式合成�
 \subsubsection{Fast Neural Transfer}
 
 \textbf{Fast Neural Transfer.}\cite{FNT} 该算法计算单个像素的损失函数时不止考虑低层级的像素信息，还利用损失网络中的高层级特征表示的感知损失函数来训练算法的网络结构。训练过程中，感知损失能够比单个像素损失函数更好的测量出图像之间的相似度。除了图像风格的转换，Fast Neural Transfer还可用于图像的分辨率升级等应用。它通过利用感知损失函数训练的前向转换神经网络将前向图像转换任务和优化后的图像合成技术结合了起来。
-
-\begin{figure}[!bh]
-    \centering
-    \subfigure[]{\includegraphics[width=.23\textwidth]{FNT/origin}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{FNT/night}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{FNT/fog}}
-    \subfigure[]{\includegraphics[width=.23\textwidth]{FNT/snow}}
-    \subfigure[官方实验样例图]{
-        \includegraphics[width=.75\textwidth]{fnt_o_1}
-    }
-    \caption{Fast Neural Transfer实验结果样例图}
-    \label{fnt-result}
-\end{figure}
 
 该算法系统由两部分：图像转换网络$f_w$和损失网络$\Theta$。其中损失网络用来定义多个损失函数$\ell_1,\dots,\ell_k$。图像转换网络是一个由权值$W$参数化的深度残差卷积神经网络。它通过映射函数$\hat{y}=f_W(x)$将输入图片$x$转换成输出图片$\hat{y}$。每个损失函数都会计算一个标量值$\ell_i(\hat{y},y_i)$来测量输出图片$\hat{y}$和目标图片$y_i$之间的距离。该图像转换网络的训练使用了一个复杂的梯度下降算法来最小化损失函数的权值组合：
 \begin{align}
@@ -191,7 +179,17 @@ PhotoWCT是基于WCT\cite{wctp}算法，为了实现真实的图片样式合成�
     G_j^{\Theta}(x)_{c,\hat{c}}=\frac{1}{C_jH_jW_j}\sum_{h=1}^{H_j}\sum_{w=1}^{W_j}\Theta_j(x)_{h,w,c}\Theta_j(x)_{h,w,\hat{c}}
 \end{align}
 
-除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。图\ref{fnt-result}为该算法在我们的数据集上实验的结果样例图以及Fast Neural Transfer官方的实验结果样例图。 
+除此之外，该算法还定义了一个简单的损失函数：像素损失函数是输出图片$\hat{y}$和目标图片$y$间的欧氏距离。如果两者的尺寸形状都为$C\times H\times W$则像素损失为$\ell_{pixel}(\hat(y),y)=||\hat{y}-y||_2^2/CHW$。图\ref{fnt-result}为该算法在我们的数据集上实验的结果样例图。
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.23\textwidth]{FNT/origin}
+    \includegraphics[width=.23\textwidth]{FNT/night}
+    \includegraphics[width=.23\textwidth]{FNT/fog}
+    \includegraphics[width=.23\textwidth]{FNT/snow}
+    \caption{Fast Neural Transfer实验结果样例图}
+    \label{fnt-result}
+\end{figure}
 
 \subsubsection{UDPIR} 
 
@@ -215,11 +213,14 @@ PhotoWCT是基于WCT\cite{wctp}算法，为了实现真实的图片样式合成�
 \end{align}
 $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\cdot)$是将图像映射到对应特征空间协方差的映射函数。
 
-下图\ref{fig:tst}是Targeted Style Transfer的实验样例图，在实现我们的路况图像风格转换实验中，由于我们的需求往往是对道路或者天气的像素风格转换，而且转换后㛑需要对整个图像的整体风格也要做相应的调整，从而使得合成图像尽可能的真实。这使得我们需要对原始图片做大量的语义分割工作，而目前还没有专门这对这类工作的自动化流程代码出现，这使得我们要对整个路况图像库坐语义分割的预处理变得成本巨大，导致难以实现，因此我们也放弃了对该模型的进一步实验。 
+下图\ref{fig:tst}是Targeted Style Transfer的实验样例图，如文献\cite{Targeted-Style-Transfer}提到的，该算法主要用于艺术画的图像风格转换，为了减少合成图中艺术风格的占比，我们将原模型中的VGG判别网络重新在我们的路况数据集上训练了一遍，但最后的实验结果仍不理想，图\ref{fig:tst}为最终的实验结果样例图，主要的问题是合成图的艺术画风格太重，经过实验组员讨论，决定放弃对该模型的进一步实验和数据总结。
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=.8\textwidth]{results/tst}
+    \includegraphics[width=.23\textwidth]{models/TST/1}
+    \includegraphics[width=.23\textwidth]{models/TST/2}
+    \includegraphics[width=.23\textwidth]{models/TST/3}
+    \includegraphics[width=.23\textwidth]{models/TST/4}
     \caption{Targeted Style Transfer实验样例图片}
     \label{fig:tst}
 \end{figure}
@@ -237,7 +238,14 @@ $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=.8\textwidth]{results/fst}
+    \includegraphics[width=.23\textwidth]{models/FST/1}
+    \includegraphics[width=.23\textwidth]{models/FST/2}
+    \includegraphics[width=.23\textwidth]{models/FST/3}
+    \includegraphics[width=.23\textwidth]{models/FST/4}
+    \includegraphics[width=.23\textwidth]{models/FST/5}
+    \includegraphics[width=.23\textwidth]{models/FST/6}
+    \includegraphics[width=.23\textwidth]{models/FST/7}
+    \includegraphics[width=.23\textwidth]{models/FST/8}
     \caption{Feedforward style transfer实验结果样例图}
     \label{fig:fst}
 \end{figure}
@@ -252,17 +260,6 @@ $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\
 \begin{align}
     \phi(x_0)=\frac{1}{|\Omega|}\sum_{i=1}^{|\Omega|}\psi_oF(x_0;i)\approx E_{x\sim p(x)}[\phi_oF_l(x;0)]
 \end{align}
-
-\begin{figure}[ht]
-    \centering
-    \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/1}}
-    \subfigure[]{\includegraphics[width=.45\textwidth]{texture-nets/2}}
-    \subfigure[官方实验样例图]{
-        \includegraphics[width=.7\textwidth]{tn_o_1}
-    }
-    \caption{Texture Nets实验结果样例图} 
-    \label{tn-example}
-\end{figure}
 
 同其他的图像风格转换技术类似，该算法的损失函数也是从文献\cite{nst}中推导出来的，图像的统计数据通过固定的提前训练好的卷积神经网络(通常是VGG网络)提取出来。其Gram矩阵可以定义成一个向量矩阵和特征图谱的点积：
 \begin{align}
@@ -284,6 +281,20 @@ $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\
 \end{align}
 这里的$Z$表示纹理合成图片的噪声分布，$y$是真实图片的实际分布，$\alpha$是平衡纹理/样式和内容的参数。图\ref{tn-example}为该模型的最终实验结果样例图以及Texture Nets官方实验结果样例图。
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.23\textwidth]{models/TN/1}
+    \includegraphics[width=.23\textwidth]{models/TN/2}
+    \includegraphics[width=.23\textwidth]{models/TN/3}
+    \includegraphics[width=.23\textwidth]{models/TN/4}
+    \includegraphics[width=.23\textwidth]{models/TN/5}
+    \includegraphics[width=.23\textwidth]{models/TN/6}
+    \includegraphics[width=.23\textwidth]{models/TN/7}
+    \includegraphics[width=.23\textwidth]{models/TN/8}
+    \caption{Texture Nets实验结果样例图} 
+    \label{tn-example}
+\end{figure}
+
 \section{总结}
 
 我们以文献\cite{nst-survey}为神经风格迁移技术的调研入口，初步找到了8种能够实现图像风格转换的神经风格迁移技术，即上文介绍过的AdaIN-Style，Deep Photo Style，Fast Photo Style，Fast Neural Transfer，UDPIR，Targeted Style Transfer，Feedforward Style Transfer和Texture Nets。其中Targeted Style Transfer文献\cite{Targeted-Style-Transfer}中实现的代码未开源，UDPIR文献\cite{UDPIR}中的代码由于作者放弃了维护，目前的版本不能成功运行，因此放弃了对Targeted Style Transfer和UDPIR模型的进一步实验。最终成功实验并得到数据模型有：AdaIN-Style，Deep Photo Style，Fast Photo Style，Fast Neural Transfer和Texture Nets。
@@ -295,7 +306,7 @@ $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\
     \subfigure[Fast Photo Style]{
         \includegraphics[width=.7\textwidth]{nst-res}
     }
-    \subfigure[AdaIN Style]{
+    \subfigure[Fast Neural Transfer]{
         \includegraphics[width=.7\textwidth]{nst-res2}
     }
     \caption{神经风格转换技术合成图样例}
@@ -305,5 +316,5 @@ $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\
 在得到最终实验成功的几个神经风格迁移技术的路况合成图数据后，我们对实验结果数据，即路况合成图观察后有以下2个发现：
 \begin{enumerate}
     \item 神经风格迁移技术的合成图相对对抗生成网络技术的合成图而言，合成图展现的语义跟原始图十分接近，图\ref{fps:sam}第一行为Fast Photo Style对路况图像进行晴天-雾天的转换结果样例图，可以明显的看出合成图和原图在内容上表现的语义信息几乎一致。
-    \item 几乎所有神经风格迁移模型的合成图都有一部分图像具有明显的艺术画风格，比如图\ref{fps:sam}第二行展示的AdaIN Style的一张合成图，明显的可以看出合成图像具有艺术画特有的风格，实验的其他4中神经风格迁移技术的合成图里也有各种比例的图具有类似的艺术画风格，我们认为造成该种现象的主要原因是大部分的神经风格迁移模型的网络结构都包含了VGG-19，即他们的网络架构是相近的，导致不同的模型在训练过程中会学习到一部分类似的图像特征，从而导致不同模型最终的合成图会有大量类似的风格出现。
+    \item 几乎所有神经风格迁移模型的合成图都有一部分图像具有明显的艺术画风格，比如图\ref{fps:sam}第二行展示的Fast Neural Transfer的一张合成图，明显的可以看出合成图像具有艺术画特有的风格，实验的其他4中神经风格迁移技术的合成图里也有各种比例的图具有类似的艺术画风格，我们认为造成该种现象的主要原因是大部分的神经风格迁移模型的网络结构都包含了VGG-19，即他们的网络架构是相近的，导致不同的模型在训练过程中会学习到一部分类似的图像特征，从而导致不同模型最终的合成图会有大量类似的风格出现。
 \end{enumerate}

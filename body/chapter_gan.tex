@@ -52,12 +52,16 @@
     min_G max_D V(D,G)=\mathbb{E}_{\x\sim p_{data}(x)}[\log D(x|y)]+\mathbb{E}_{z\sim p_z(z)}[\log(1-D(G(z|y)))]
 \end{gather}
 
-因为文献中\cite{cGAN}主要对MNIST\cite{mnist}数据集进行了数字模拟合成，在已有的路况图像数据集上实验的结果很不理想，且文献中提供的代码对数据集的要求也与一般的模型输入不一样，需要额外的处理，因而我们放弃了在该模型上的进一步实验与数据统计。 
+因为文献中\cite{cGAN}主要对MNIST\cite{mnist}数据集进行了数字模拟合成，在已有的路况图像数据集上实验的结果很不理想,图\ref{fig:cgan}为cGAN的实验结果样例图，我们简单分析实验结果不理想的主要原因在与cGAN使用的是一个浅层卷积神经网络，学习能力有限，对一些语义信息比较简单的图像有很好的特征提取性能，但对复杂的图像，比如我们使用的路况图像，则不能很好的学习到图像的高级特征，导致最后的合成图效果很差，因而我们放弃了在该模型上的进一步实验与数据统计。 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=.65\textwidth]{results/cgan}
-    \caption{cGAN在MNIST数据集上的数字合成图片样例}
+    \includegraphics[width=.24\textwidth]{models/cGAN/1}
+    \includegraphics[width=.24\textwidth]{models/cGAN/2}
+    \includegraphics[width=.24\textwidth]{models/cGAN/3}
+    \includegraphics[width=.24\textwidth]{models/cGAN/4}
+    \caption{cGAN实验结果样例图}
+    \label{fig:cgan}
 \end{figure}
 
 \subsubsection{DCGAN}[DCGAN]
@@ -66,22 +70,16 @@
 
 DCGAN主要目的是找到一个方法能够对图像进行特征重建及特征提取。DCGAN在其卷积神经网络的拓扑结构内提出了一套限制，使得该模型能够几乎在任何参数设置里都能够尽快的训练收敛。相较其他的对抗生成网络模型，DCGAN的主要优点是其稳定的网络结构和较快的训练收敛速度。DCGAN的作者将该模型在CIFAR-10\cite{cifar10}数据集上做了一次实证研究，结果也验证了DCGAN较其他GAN模型能够更快的学习到图像的特征。
 
-虽然DCGAN的作者将其运用在人脸合成与转换上相当成功，但我们后来将其训练集换成了Udacity的自动驾驶路况数据集以及youtube上爬取的数据，实验结果样本图如下图\ref{dcgan_example}所示，效果却不理想。
+虽然DCGAN的作者将其运用在人脸合成与转换上相当成功，但我们后来将其训练集换成了Udacity的自动驾驶路况数据集以及youtube上爬取的数据，实验结果样本图如下图\ref{dcgan_example}所示，效果不理想。
 
 \begin{figure}[h]
     \centering
-    \subfigure[DCGAN在人脸图像合成的效果样例图]{
-        \includegraphics[width=0.75\textwidth]{dcgan_example}
-    }
-    \subfigure[DCGAN在自动驾驶数据集上的效果样例图]{
-        \includegraphics[width=0.4\textwidth]{results/dcgan_night}
-        \includegraphics[width=0.4\textwidth]{results/dcgan_rain}
-    }
-    \caption{}
+    \includegraphics[width=\textwidth]{models/DCGAN/1}
+    \caption{DCGAN实验结果样例图}
     \label{dcgan_example}
 \end{figure}
 
-实验代码使用的是\cite{dcgan}论文中给出的代码，其中主要参数配置如下
+实验过程中，我们参考了\cite{dcgan}论文中给出的算法，针对我们收集的路况图像数据集调整了部分网络结构和训练参数，具体配置参数如下
 
 \begin{lstlisting}[basicstyle=\small]
     --bathSize     200          // 批量实验数据大小
@@ -130,27 +128,6 @@ CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:
 
 这里的$G$试图产生类似于类$Y$的图像集$G(x)$，然而$D_Y$的目标是区分转换的图像$G(x)$和真实的图像数据$y$。$G$旨在与对抗器$D$竞争最小化该目标函数。
 
-\begin{figure}[b]
-    \centering
-    \subfigure[原始图片]{
-        \includegraphics[width=0.3\textwidth]{results/cyclegan-input}
-    }
-    \subfigure[白天场景]{
-        \includegraphics[width=0.3\textwidth]{results/cyclegan-sun}
-    }
-    \subfigure[黑天场景]{
-        \includegraphics[width=0.3\textwidth]{results/cyclegan-night}
-    }
-    \subfigure[官方样例-1]{
-        \includegraphics[width=0.45\textwidth]{cyclegan_o_1}
-    }
-    \subfigure[官方样例-2]{
-        \includegraphics[width=0.45\textwidth]{cyclegan_o_2}
-    }
-    \caption{CycleGAN实验样例图以及官方图像转换样例图}
-    \label{fig:cyclegan}
-\end{figure} 
-
 对抗器理论上可以训练出可以输出和目标类$Y$与$X$分布完全相同的数据的映射函数$G$和$F$，但是如果网络的体积足够大，可以将相同的输入图片集映射到目标图片类的任意图像子集里。因此，单靠对抗损失函数无法保证学习到了映射函数能将单张输入图片$x_i$映射到理想的输出$y_i$。为了进一步减小可能的映射函数空间，CycleGAN提出循环一致映射函数，即对于来自类$X$的每张图像，对应的图像转换循环应该能够将$x$转换成原始图片，即\textit{向前循环一致}。上述的循环一致损失函数可以表示为：
 \begin{equation}
 \begin{aligned}
@@ -172,7 +149,36 @@ CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:
 
 CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并不好，常常会造成合成图的语义不明确。它通常适合于颜色和图像纹理转换的情形，对于合成图有内容变化的情形，CycleGAN合成图的效果会比较差，其作者分析其中的原因可能是因为常常会为了提高图像信息变化更高效而裁减生成器的网络复杂度，这使得CycleGAN对于内容改变的性能变差。文献\cite{CycleGAN}中也提到了CycleGAN对于一组不相似的图片训练出来的模型效果较一组相近训练数据集模型效果会差很多，并且很难消除这两者间的差异。
 
-图\ref{fig:cyclegan}是我们将CycleGAN运用在我们的数据集上,进行了晚上到白天以及黑天场景转换的实验结果样本图以及CycleGAN在其官方给定的数据集上的图像转换效果。 
+图\ref{fig:cyclegan}是我们将CycleGAN运用在我们的数据集上的实验结果样本图。 
+
+\begin{figure}[h]
+    \centering
+    % \subfigure[原始图片]{
+    %     \includegraphics[width=0.3\textwidth]{results/cyclegan-input}
+    % }
+    % \subfigure[白天场景]{
+    %     \includegraphics[width=0.3\textwidth]{results/cyclegan-sun}
+    % }
+    % \subfigure[黑天场景]{
+    %     \includegraphics[width=0.3\textwidth]{results/cyclegan-night}
+    % }
+    % \subfigure[官方样例-1]{
+    %     \includegraphics[width=0.45\textwidth]{cyclegan_o_1}
+    % }
+    % \subfigure[官方样例-2]{
+    %     \includegraphics[width=0.45\textwidth]{cyclegan_o_2}
+    % }
+
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/1}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/2}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/3}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/4}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/5}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/6}\includegraphics[width=.24\textwidth]{models/CycleGAN/7}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/8}
+    \caption{CycleGAN实验样例图}
+    \label{fig:cyclegan}
+\end{figure} 
 
 % wc ~ 800
 
@@ -180,7 +186,14 @@ CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并
 
 \newmodel{WGAN} 该算法相较其他的GAN模型的主要改进依然是提升了模型训练的稳定性和收敛速度。WGAN提出了Earth-Mover距离，并证明了该距离比其他的距离尺度指标能产生更好的梯度，从而提升训练速度。此外它关于判别器网络还去掉了对应了sigmoid层，在对抗损失函数中去掉了log函数，有效地避免的类似模型塌缩等问题。理论上图像合成的效果要好于DCGAN。
 
-因为WGAN文献中只给出了算法的核心思想，没有给出实验源码。我们参考文献中提供的算法，实现了WGAN的图像转换代码，但是在路况图像数据集上的实验结果十分不理想，合成的图像与原图像在语义上相差甚远，我们猜测可能是算法实现没有成功导致，最终我们没有将该实验结果纳入最后的实验数据总结和统计中。
+因为WGAN文献中只给出了算法的核心思想，没有给出实验源码。我们参考文献中提供的算法，实现了WGAN的图像转换代码，但是在路况图像数据集上的实验结果十分不理想，合成的图像与原图像在语义上相差甚远，我们猜测可能是算法实现没有成功导致，最终我们没有将该实验结果纳入最后的实验数据总结和统计中。图为Udacity白天到雪天场景的转换样例图。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{models/WGAN/1}
+    \caption{WGAN实验样例图}
+    \label{fig:wgan}
+\end{figure}
 
 \subsubsection{MUNIT}[MUNIT]
 
@@ -190,18 +203,7 @@ CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并
 
 \begin{figure}[t]
     \centering
-    \subfigure[原始图片]{
-        \includegraphics[width=.3\textwidth]{results/munit}
-    }
-    \subfigure[雪天场景1]{
-        \includegraphics[width=.3\textwidth]{results/munit_winter}
-    }
-    \subfigure[雪天场景2]{
-        \includegraphics[width=.3\textwidth]{results/munit_winter2}
-    }
-    \subfigure[官方实验样例图]{
-        \includegraphics[width=0.8\textwidth]{munit_o_1}
-    }
+    \includegraphics[width=\textwidth]{models/MUNIT/1}
     \caption{MUNIT实验样例图}
     \label{fig:munit}
 \end{figure}
@@ -250,21 +252,6 @@ CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并
 
 \subsubsection[EBGAN]{EBGAN}
 
-\begin{figure}[b]
-    \centering
-    \subfigure[原始图片]{
-        \includegraphics[width=.45\textwidth]{results/ebgan-input}
-    }
-    \subfigure[雨天场景]{
-        \includegraphics[width=.45\textwidth]{results/ebgan-rain}
-    }
-    \subfigure[官方人脸合成样例图]{
-        \includegraphics[width=0.8\textwidth]{ebgan_o_1}
-    }
-    \caption{EBGAN实验样例图}
-    \label{fig:ebgan}
-\end{figure}
-
 \textbf{EBGAN.}\cite{ebgan}\quad 的核心思想是将判别器视为一个能量函数而不是通常的概率函数。它构建了一个函数能将输入空间中的每个点映射成为一个单标量，并且提出了对抗生成模型训练的一个基于能量表达的公式。由判别器计算出来的能量函数可以被视作生成器的可训练代价函数。虽然可以将能量函数通过Gibbs分布转换成概率函数，但是基于它提出的基于能量形式的对抗生成网络由于缺少归一化，从而使我们在判别器的架构和训练过程中有了更多的选择。EBGAN的学习构成是由数据驱动，定型能量函数是的好的模型参数配置获得低能量而不好的配置参数获得高能量。这种训练书序监督学习的一种：对于每训练集中的每个$X$，一种$(X,Y)$的能量只有当$Y$是好的配置参数时才会获得低能量，反之获得高能量。下面简单阐述一下EBGAN的基本原理。
 
 将$p_{data}$视作产生真实数据集分布的概率密度函数，生成器$G$训练生成赝本数据$G(z)$。为了定义能量函数，判别器的输出通过一个目标泛函算子进行转换，将低能量视为真实样本数据，而高能量则为合成的伪数据。跟一般的对抗生成网络一样，EBGAN也使用了两个不同的损失函数来分别训练生成器和判别器。
@@ -287,7 +274,21 @@ CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并
 
 EBGAN打通了两类不同的非监督学习方法：对抗生成网络和自动编码器，并且从基于能量的角度重新采用对抗生成网络的结构并定义新的训练损失函数。对于高分辨率图片，相较其他类的对抗生成网络技术，EBGAN的模型训练有更快的收敛速度，且合成图片也有更好的合成效果。
 
-我们在已有的数据集上使用了tensorflow实现的EBGAN代码\cite{ebgan-github}，实现了晴天路况到雨天场景的转换，图\ref{fig:ebgan}是实验结果样例图及官方人脸合成实验样例图。
+我们在已有的数据集上使用tensorflow库实现了晴天路况到雨天和夜晚场景的转换，图\ref{fig:ebgan}是实验结果样例图。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.24\textwidth]{models/EBGAN/1}
+    \includegraphics[width=.24\textwidth]{models/EBGAN/2}
+    \includegraphics[width=.24\textwidth]{models/EBGAN/3}
+    \includegraphics[width=.24\textwidth]{models/EBGAN/4}
+    \includegraphics[width=.24\textwidth]{models/EBGAN/5}
+    \includegraphics[width=.24\textwidth]{models/EBGAN/6}
+    \includegraphics[width=.24\textwidth]{models/EBGAN/7}
+    \includegraphics[width=.24\textwidth]{models/EBGAN/8}
+    \caption{EBGAN实验样例图}
+    \label{fig:ebgan}
+\end{figure}
 
 \subsubsection{LSGAN}
 
@@ -297,18 +298,17 @@ EBGAN打通了两类不同的非监督学习方法：对抗生成网络和自动
     & \min_D V_{LSGAN}(D)=\frac{1}{2}\mathbb{E}_{x\sim p_{data}(x)}[(D(x)-b)^2]+\frac{1}{2}\mathb{E}_{z\sim o_z(z)}[(D(G(z))-z)^2] \\
     & \min_G V_{LSGAN}(G)=\frac{1}{2}\mathb{E}_{z\sim p_z{z}}[(D(G(z))-c)^2]
 \end{aligned}
+\label{con:f1}
 \end{equation}
-
-下图\ref{fig:lsgan}是LSGAN和一般的GAN图像合成样本的对比图。
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{results/lsgan}
+    \includegraphics[width=\textwidth]{models/LSGAN/1}
     \caption{LSGAN合成图像对比图}
     \label{fig:lsgan}
-\end{figure}
+\end{figure}　
 
-由于文献中的实验代码没有开源，于是我们利用DCGAN的源码将其判别器的损失函数改为文献中提到了最小方差函数，但是最后的实验结果跟DCGAN的实验结果相差不大。基于较差的实验结果我们舍弃了该模型实验结果的数据统计和总结。
+因为文献\cite{LSGAN}中算法使用的网络结构跟DCGAN\cite{dcgan}使用的非常接近，主要区别在于损失函数的差别，于是我们使用Pytorch实现了公式\ref{con:f1}中的损失函数，训练算法以及网络架构代码都沿用DCGAN的代码，实验结果如图\ref{fig:lsgan}所示，我们发现合成图质量与DCGAN相差无几，质量提升不大，主要原因可能是公式\ref{con:f1}使用的损失函数不适用与路况图像的合成。基于较差的实验结果我们舍弃了该模型实验结果的数据统计和总结。
 
 \subsubsection{MGAN}
 
@@ -318,7 +318,14 @@ EBGAN打通了两类不同的非监督学习方法：对抗生成网络和自动
 
 \begin{figure}[h] 
     \centering
-    \includegraphics[width=.9\textwidth]{results/mgan}
+    \includegraphics[width=.23\textwidth]{models/MGAN/1}
+    \includegraphics[width=.23\textwidth]{models/MGAN/2}
+    \includegraphics[width=.23\textwidth]{models/MGAN/3}
+    \includegraphics[width=.23\textwidth]{models/MGAN/4}
+    \includegraphics[width=.23\textwidth]{models/MGAN/5}
+    \includegraphics[width=.23\textwidth]{models/MGAN/6}
+    \includegraphics[width=.23\textwidth]{models/MGAN/7}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/21}
     \caption{MGAN实验样例图}
     \label{fig:mag}
 \end{figure}
@@ -344,11 +351,18 @@ EBGAN打通了两类不同的非监督学习方法：对抗生成网络和自动
     \end{cases}  
 \end{align}
 
-我们参照文献中的代码实现了WGAN的人脸图像合成，但将数据源换成我们的路况图像数据集后，程序出现了未知的BUG，导致最终的路况图像合成实验没能完成。下图\ref{fig:began}为BEGAN的人脸合成结果样例图。
+我们参考了文献中的代码\cite{BEGAN}实现了WGAN的人脸图像合成，但将数据源换成我们的路况图像数据集后，发现合成的图像质量效果太差，图\ref{fig:began}为实验结果样例图，基于时间成本考虑我们放弃了对该模型的进一步实验和数据统计。
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width = .8\textwidth]{results/began}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/1}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/2}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/3}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/4}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/5}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/6}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/7}
+    \includegraphics[width=.23\textwidth]{models/BEGAN/8}
     \caption{BEGAN人脸合成样例图}
     \label{fig:began}
 \end{figure}　
