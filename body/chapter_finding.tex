@@ -39,37 +39,60 @@ IS的作者用ImageNet\cite{ImageNet}的数据训练了一个分类器，最终�
 
 \begin{table}[h]
     \centering
-    \begin{tabular}{p{3cm}|rrr}
-        \hline
+    \caption{模型训练时间统计表}
+    \begin{tabular}{l{3.5cm}rrr}
+        \toprule
         \mthead{模型名称} & \mthead{real} & \mthead{user} & \mthead{sys} \\
-        \hline
+        \midrule
         MUNIT & 3743m77.651s & 4927m93.474s & 837m.52.196s \\
-        \hline
-        CycleGAN & 3154m38.274s & 4081m81.696s & 731m20.894s \\ \hline
-        EBGAN & 3811m24.172s & 5021m32.721s & 757m19.141s \\ \hline
-        AdaIn Style & 2349m46.212s & 3782m18.764s & 554m26.476s \\ \hline
-        Deep Photo Style Transfer & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
-        Fast Photo Style & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
-        Fast Neural Transfer & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
-        Texture Nets & \multicolumn{3}{c}{\textit{pre-trained}} \\ \hline
+        % \hline
+        CycleGAN & 3154m38.274s & 4081m81.696s & 731m20.894s \\
+        % \hline
+        EBGAN & 3811m24.172s & 5021m32.721s & 757m19.141s \\ 
+        % \hline
+        AdaIn Style & 2349m46.212s & 3782m18.764s & 554m26.476s \\ 
+        % \hline
+        Deep Photo Style Transfer & \multicolumn{3}{c}{\textit{pre-trained}} \\ 
+        % \hline
+        Fast Photo Style & \multicolumn{3}{c}{\textit{pre-trained}} \\ 
+        % \hline
+        Fast Neural Transfer & \multicolumn{3}{c}{\textit{pre-trained}} \\ 
+        % \hline
+        Texture Nets & \multicolumn{3}{c}{\textit{pre-trained}} \\ 
+        % \hline
+        \bottomrule
     \end{tabular}
-    \caption{模型训练时间统计}
     \label{table:time}
 \end{table}
+
 因为图像风格转换技术中，除了Adain Style，其他都是直接使用的文献中给定的pre-trained模型，一般都是VGG网络。在已有的数据中可以看到MUNIT训练用时最长。因此我们建议如果时间不充裕的情况下可以优先考虑使用图像风格转换技术的模型，对于模型风格不同的需求可以通过更换提前训练好的模型网络来实现，而无需想对抗生成网络一样对新数据重新进行一遍整体模型的训练。尽管大部分图像风格转换技术有无需对整体模型进行训练的便利，但我们在实验中发现图像风格转换技术对单张图片的转换时间比训练好的对抗生成网络模型耗时要更长，一般训练好的对抗生成网络模型单张图片合成平均耗时约5秒左右，而我们统计的图像风格转换技术依具体模型不同耗时在1分钟到20分钟。因此如果考虑到实时图形转换，譬如视频实时合成的需求，则对抗生成网络大类的技术是更好的选择。
 
 \textbf{FID.}\quad 我们参考了文献\cite{FID}提供的FID计算算法，利用Pytorch库对算法进行了实现并最终计算了8个模型合成图的fid值，下表\ref{table:fid}和图\ref{col_fid}为最后的结果统计数据和相应的柱状图： 
 
+% \begin{table}[h] 
+%     \centering
+%     \caption{FID值统计表}
+%     \begin{tabular}{|l|*{4}{p{2.5cm}|}}
+%         \hline
+%         模型 & MUNIT & CycleGAN & EBGAN & AdaIN Style  \\ \hline 
+%         FID值 & 185.18924 & 275.04948 & 217.82906 & 88.39498  \\ \hline
+%         模型 & Deep Photo Style & Fast Photo Style & Fast Neural Transfer & Texture Nets \\ \hline
+%         FID值 & 77.28563 & 139.49777 & 92.61378 & 87.31297 \\ \hline
+%     \end{tabular}
+%     \label{table:fid}
+% \end{table}
+
 \begin{table}[h] 
     \centering
-    \begin{tabular}{|l|*{4}{p{2.5cm}|}}
-        \hline
-        模型 & MUNIT & CycleGAN & EBGAN & AdaIN Style  \\ \hline 
-        FID值 & 185.18924 & 275.04948 & 217.82906 & 88.39498  \\ \hline
-        模型 & Deep Photo Style & Fast Photo Style & Fast Neural Transfer & Texture Nets \\ \hline
-        FID值 & 77.28563 & 139.49777 & 92.61378 & 87.31297 \\ \hline
-    \end{tabular}
+    \scriptsize
     \caption{FID值统计表}
+    \begin{tabular}{l*{4}{p{2.5cm}}}
+        \toprule
+        模型 & MUNIT & CycleGAN & EBGAN & AdaIN Style & Deep Photo Style & Fast Photo Style & Fast Neural Transfer & Texture Nets \\
+        \midrule
+        FID值 & 185.18924 & 275.04948 & 217.82906 & 88.39498 & 77.28563 & 139.49777 & 92.61378 & 87.31297  \\
+        \bottomrule
+    \end{tabular}
     \label{table:fid}
 \end{table}
 
