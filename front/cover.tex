@@ -60,11 +60,9 @@
 
 尽管各大公司都标榜如今的自动驾驶系统安全性能已经足够高，但是近一两年发生的几起自动驾驶车祸引起了人们对于自动驾驶系统安全性能的关注，2018年3月23号，在美国加州山景城高速公路上一辆处于自动驾驶模式的特斯拉轿车发生了车祸，事后事故分析指出由于Autopilot未能识别灰色公路背景下的白色防护栏从而导致的车祸的发生。同样也是由于自动驾驶系统的误判，Uber公司研制的自动驾驶车辆于2017年在美国亚利桑那州天普城也发生了车祸事故。
 
-除了上述之外，近年来还陆续有自动驾驶相关的车祸发生，以上种种都表明当前的自动驾驶的安全性能并没有人们认为的那么高。为了提升自动驾驶系统的安全等级，工业界和学术界都在此做了很多研究，于2017年学术界在此领域先后发表了2篇重要的文章，DeepXplore\cite{DeepXplore}和DeepTest\cite{DeepTest}，DeepXplore提出了一套深度学习系统测试用例自动生成的框架。DeepTest延伸了DeepXplore的工作并将前者的方法成功的运用到了自动驾驶系统测试用例，即驾驶路况场景图，生成中，两者的工作都以现实的自动驾驶框架为测试对象，成功生成出了很多自动驾驶系统会误判的测试用例，这对提升自动驾驶系统的安全性能有着重大意义。 
+除了上述之外，近年来还陆续有自动驾驶相关的车祸发生，以上种种都表明当前的自动驾驶的安全性能并没有人们认为的那么高。为了提升自动驾驶系统的安全等级，工业界和学术界都在此做了很多关于自动驾驶测试的研究。经过多年的发展，在该领域有一个难点始终没得得到很好的解决，即自动驾驶测试框架的测试用例通常需要人工收集和标注，极大地增加了测试工作的成本，针对此问题，与2017年学术界先后提出了DeepXplore\cite{DeepXplore}和DeepTest\cite{DeepTest}方法，即一个针对自动驾驶系统能够自动生成测试用例的测试框架。然而上诉工作也有一个严重的缺陷，即生成的测试用例跟现实场景的数据相差太大，合成的路况图片不真实，对此，在本论文中，我们针对现有的深度学习技术，主要包含对抗生成网络和图像风格转换技术，做了大量的实证研究，以探讨哪些现有的深度学习技术对于自动驾驶测试用例生成，即驾驶场景图片的合成，是最有效的。 
 
-基于DeepXplore和DeepTest的工作，DeepRoad\cite{DeepRoad}借助对抗生成网络\cite{GAN}中的UNIT\cite{UNIT}框架提升了生成的自动驾驶测试用例，即驾驶场景图片的质量。在本论文中，我们针对现有的深度学习技术，主要包含对抗生成网络和图像风格转换技术，做了大量的实证研究，以探讨哪些现有的深度学习技术对于自动驾驶测试用例生成，即驾驶场景图片的合成，是最有效的。截止该论文成稿日期，目前学术界还没有针对自动驾驶测试用例生成，即路况图片合成技术的实证研究。 
-
-本工作希望能为之后的自动驾驶系统测试人员在选择驾驶场景图片测试用例自动生成的框架选择上可以给出一些有价值的建议。
+本工作主要的贡献点在于：1. 第一个大规模地针对深度学习技术，主要有对抗生成网络和神经风格迁移技术，运用在自动驾驶系统测试用例生成的实证研究。2. 对实证研究中大量的实验数据进行了统计分析，得出了相关结论，指出哪些深度学习技术适合作为自动驾驶系统测试用例生成技术，给出了各个技术在不同评价指标下的性能对比。3. 对DeepRoad测试框架进行了拓展。
 
 \end{cabstract}
 
@@ -77,7 +75,7 @@
 
   Based on the work of DeepXplore and DeepTest, my lab has proposed DeepRoad\cite{DeepRoad}, which enhances the generated autopilot test case by using the UNIT\cite{UNIT} framework in the anti-generation network \cite{GAN}. The quality of the driving scene picture. In this paper, we have done a lot of empirical research on existing deep learning techniques, including anti-generation network and image style conversion techniques, to explore which existing deep learning techniques are used for autopilot test case generation. That is, the synthesis of the driving scene picture is the most effective.
 
-  This work hopes to give some valuable suggestions for the subsequent autopilot system testers to choose the framework of the auto-generated framework for driving scene picture test cases.
+  The main contributions of this work are: 1. The first empirical study of applying large-scale deep learning technology, mainly generative adversarial network and neural style transer technology, to auto-generate test case in autonomous drving system. 2. A large number of experimental data in empirical research were statistically analyzed, and relevant conclusions were drawn. It is pointed out which deep learning techniques are suitable as test case generation techniques for autopilot systems, and the performance comparison of each technology under different evaluation indicators is given. 3. Expanded the DeepRoad test framework.
 \end{eabstract}
 
 % word count ~ 1000
