@@ -36,9 +36,21 @@
 
 \subsection{扩充与预处理风格数据集}
 
-虽然之前DeepRoad工作中使用爬虫技术从Youtube视频网站上收集一定量的风格数据集，但主要是雨天和雪天场景，我们希望还能够实现除此外其他场景的风格转换，比如黄昏、夜晚等场景，因此我们在原有的数据集上又收集了几个国外大学以及研究组织提供的开源路况数据集：Oxford RobotCar\cite{ds:oxford}，Comma.ai\cite{ds:ai}，Berkeley大规模自动驾驶视频数据集\cite{ds:berkeley}。其中Oxford RobotCar和Berkeley数据集中很多图像中包含了Udacity数据集中没有的元素，比如雨天场景下的汽车雨刷，由于摄像头位于汽车内驾驶室靠后位置而出现的车窗框，驾驶员等与路况信息无关的噪声信息。我们对含有此类噪声的图像进行了人工的排查和去除。
+虽然之前DeepRoad工作中使用爬虫技术从Youtube视频网站上收集一定量的风格数据集，但主要是雨天和雪天场景，我们希望还能够实现除此外其他场景的风格转换，比如黄昏、夜晚等场景，因此我们在原有的数据集上又收集了几个国外大学以及研究组织提供的开源路况数据集：Oxford RobotCar\cite{ds:oxford}，Comma.ai\cite{ds:ai}，Berkeley大规模自动驾驶视频数据集\cite{ds:berkeley}。其中Oxford RobotCar和Berkeley数据集中很多图像中包含了Udacity数据集中没有的元素，如图\ref{fig-bads}所示，有雨天场景下的汽车雨刷，图像场景太暗，视频字幕等与路况信息无关的噪声信息。我们对含有此类噪声的图像进行了人工的排查和去除。
 
-% TODO 添加噪声图片
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.23\textwidth]{img-filter/1}
+    \includegraphics[width=0.23\textwidth]{img-filter/2}
+    \includegraphics[width=0.23\textwidth]{img-filter/3}
+    \includegraphics[width=0.23\textwidth]{img-filter/4}
+    \includegraphics[width=0.23\textwidth]{img-filter/5}
+    \includegraphics[width=0.23\textwidth]{img-filter/6}
+    \includegraphics[width=0.23\textwidth]{img-filter/7}
+    \includegraphics[width=0.23\textwidth]{img-filter/8}
+    \caption{含有噪声的路况图片} 
+    \label{fig-bads}
+\end{figure}
 
 \subsection{筛选模型}
 
@@ -68,11 +80,11 @@
 
 \begin{figure}[h]
     \centering
-    % TODO 原图 和 风格图
-    \includegraphics[width=.24\textwidth]{models/cGAN/1}
-    \includegraphics[width=.24\textwidth]{models/cGAN/3}
-    \includegraphics[width=.24\textwidth]{models/cGAN/4}
-    \includegraphics[width=.24\textwidth]{models/cGAN/2}
+    \includegraphics[width=.19\textwidth]{models/cGAN/0}
+    \includegraphics[width=.19\textwidth]{models/cGAN/1}
+    \includegraphics[width=.19\textwidth]{models/cGAN/3}
+    \includegraphics[width=.19\textwidth]{models/cGAN/4}
+    \includegraphics[width=.19\textwidth]{models/cGAN/2}
     \caption{cGAN实验结果样例图}
     \label{fig:cgan}
 \end{figure}
@@ -385,7 +397,5 @@ EBGAN打通了两类不同的非监督学习方法：对抗生成网络和自动
 对于此类技术，我们认为实验结果，即合成图质量过于不真实，对DeepRoad测试框架中测试用例合成模块的使用价值不大，因为即便使用不真实的图像检测出了监视系统的不一致行为，我们很难探明出现的不一致行为的原始是自动驾驶系统的缺陷，还是合成图与真实图相差太大导致的，并且形如图\ref{bad-res}中展示的合成图在现实场景中也不可能出现，所以将他们放入自动驾驶系统的测试集中也没有意义。基于以上原因，我们放弃了对DCGAN、cGAN、LSGAN和LAPGAN实验结果数据的进一步统计和分析。最终我们成功实验，并对实验结果数据进行了统计和总结的模型有：MUNIT、CycleGAN和EBGAN。
 
 对于cGAN、CycleGAN等模型合成图效果太差的原因我们也做了简要的分析，可能的原因在于DCGAN、cGAN、LSGAN和LAPGAN的技术实现中，对于生成器都使用了变分自编码技术\cite{vae}，使用编码器将图像集投射到内容空间和风格空间上，然后再利用解码器对拥有不同风格的图像集基于各自的内容空间和风格空间的码元进行重组，从而实现图像的风格变换，这种技术有明显的缺陷，即如果两组图像的内容和风格相差太大，则使用互相的内容空间和风格空间里的码元进行图像重构，得到的输出会因本身图像集之间的内容和风格不匹配导致合成图的内容和风格与现实场景相差甚远。 
-
-虽然目前变分自编码器技术被广泛地应用在了图像合成应用中，但大部分实现该技术的模型都是基于一些语义较为简单的图像合成，比如MNIST数字数据集，CelebA人脸数据集。对于这一类的图像，我们希望编码器主要学习提取的特征非常明确且单一，即数字特征和人脸特征，但对于路况数据集而言，我们期望模型学习的特征则相对复杂且多样，比如最重要的是路况的道路信息，车辆信息以及路边的各种交通指示信息，比如红绿灯信号等等。对于这种包含语义极为复杂的图像，变分自编码技术不能做到很好的特征提取和特征学习\cite{vae}，前文展示的实验结果也证实了这一现象。
 
 % TODO 可加入到finding里面

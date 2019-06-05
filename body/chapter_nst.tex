@@ -4,7 +4,7 @@
 
 \section{引言}
 
-上一章讲到了为了探索哪些技术能够在DeepRoad测试框架的测试用例合成模块中替换原有的UNIT模型，合成出更高质量的测试用例，我们通过文献查找、google查询等方式对对抗生成网络大类的深度学习技术进行了实验与调研，并成功找到了3个可用于替换UNIT模型的技术，即MUNIT\cite{MUNIT}、CycleGAN\cite{CycleGAN}和EBGAN\cite{ebgan}。但是考虑到我们希望对所有能够实现自动驾驶系统测试用例生成的技术有一个较为全面的调研，在导师的帮助下，我们进一步的发现深度学习中，除了对抗生成网络，还有一类技术也可以实现路况图像的风格转换，即神经风格迁移(Neural Style Transfer)技术。于是在得到MUNIT、CycleGAN和EBGAN的实验数据后我们继续展开了针对神经风格迁移技术的实证研究。
+上一章讲到了为了探索哪些技术能够在DeepRoad测试框架的测试用例合成模块中替换原有的UNIT模型，合成出更高质量的测试用例，我们通过文献查找、google查询等方式对对抗生成网络大类的深度学习技术进行了实验与调研，并成功找到了3个可用于替换UNIT模型的技术，即MUNIT\cite{MUNIT}、CycleGAN\cite{CycleGAN}和EBGAN\cite{ebgan}。但是考虑到我们希望对所有能够实现自动驾驶系统测试用例生成的技术有一个较为全面的调研，在导师的帮助下，我们进一步的发现深度学习中，除了对抗生成网络，还有一类技术也可以实现路况图像的风格转换，即神经风格迁移(Neural Style Transfer)技术。于是在得到MUNIT、CycleGAN和EBGAN的实验数据后我们继续展开了针对神经风格迁移技术的实证研究，整个实验流程仍按照前一章节所描述的进行。
 
 \section{研究方法}
 
@@ -41,7 +41,7 @@
 
 为了能够将神经风格迁移技术与上一章实验过的对抗生成网络网络技术在图像合成质量上作对比，我们对下文提到的所有神经风格迁移技术的图像转换实验中使用的数据集，即内容数据集和风格数据集都不再作扩充，与对抗生成网络技术使用的数据集保持一致，即使用之前利用爬虫技术收集的Youtube视频数据集、Oxford RobotCar\cite{ds:oxford}，Comma.ai\cite{ds:ai}和Berkeley大规模自动驾驶视频数据集\cite{ds:berkeley}。
 
-\subsection{模型筛选}
+\subsection{筛选模型}
 
 文献\cite{nst-survey}作为我们对神经风格迁移技术调研的起点，通过文献引用查询等方式，收集了以下能够实现图像风格转换的神经风格迁移技术模型：AdaIN-style\cite{adain}，Deep Photo Style Transfer\cite{dpst}，Fast Photo Style\cite{fps}，Fast Neural Transfer\cite{FNT}，UDPIR\cite{UDPIR}，Targeted-Style-Transfer\cite{Targeted-Style-Transfer}，Feedforward-style-transfer\cite{Feedforward-style-transfer}和Texture Nets\cite{texture-nets}。由于跟上一章对抗生成网络技术实验过程中遇到的类似问题，即文献提供的代码作者放弃维护，实验合成图与现实场景相差过大等原因，同样对上述的部分模型进行了淘汰筛选的工作。下面对研究过程中实验过的模型依次进行简要的介绍。
 
@@ -215,7 +215,7 @@ PhotoWCT是基于WCT\cite{wctp}算法，为了实现真实的图片样式合成�
 \end{align}
 $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\cdot)$是将图像映射到对应特征空间协方差的映射函数。
 
-下图\ref{fig:tst}是Targeted Style Transfer的实验样例图，如文献\cite{Targeted-Style-Transfer}提到的，该算法主要用于艺术画的图像风格转换，为了减少合成图中艺术风格的占比，我们将原模型中的VGG判别网络重新在我们的路况数据集上训练了一遍，但最后的实验结果仍不理想，图\ref{fig:tst}为最终的实验结果样例图，主要的问题是合成图的艺术画风格太重，经过实验组员讨论，决定放弃对该模型的进一步实验和数据总结。
+下图\ref{fig:tst}是Targeted Style Transfer的实验样例图，如文献\cite{Targeted-Style-Transfer}提到的，该算法主要用于艺术画的图像风格转换，为了减少合成图中艺术风格的占比，我们将原模型中的VGG判别网络重新在我们的路况数据集上训练了一遍，但最后的实验结果仍不理想，图\ref{fig:tst}为最终的实验结果样例图，主要的问题是合成图的艺术画风格太重,特别是图中的第４张小图，有明显的油画风格，与真实场景的路况图像差距太大，经过实验组员讨论，决定放弃对该模型的进一步实验和数据总结。
 
 \begin{figure}[h]
     \centering
@@ -236,7 +236,7 @@ $F(\cdot)$是将图像映射到对应的深度特征空间的映射函数，$C(\
     W^*=\min_W\mathb{E}_{x,\{y_i\}}[\sum_{i=1}\lambda_il_i(f_W(x),y_i)]
 \end{align}
 
-由于该算法跟其他的图像转换技术算法一样，主要用于艺术画的图像合成，其实验结果样例图\ref{fig:fst}如下，所以我们将该算法用在路况图像转换上，最后的合成的路况图片也都太过艺术画了，与真实场景的驾驶路况场景差距太大，因此我们放弃了该模型的进一步实验数据统计和总结。 
+由于该算法跟其他的图像转换技术算法一样，主要用于艺术画的图像合成，其实验结果样例图\ref{fig:fst}如下，所以我们将该算法用在路况图像转换上，最后的合成的路况图片也都太过艺术化，总体效果跟Targeted Style Transfer十分类似，我们分析了着两个模型算法，发现算法文献中使用了相同的网络结构，主要差别在于训练的目标损失函数。最终我们因合成图与真实场景的驾驶路况场景差距太大，从而放弃了该模型的进一步实验数据统计和总结。 
 
 \begin{figure}[ht]
     \centering
