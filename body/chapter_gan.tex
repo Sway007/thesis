@@ -32,7 +32,7 @@
     \min_G\max_DV(D,G)=\xi_{x\sim p_{data}(x)}[\log D(x)]+\xi_{z\sim p_z(z)}[\log(1-D(z))]
 \end{equation}
 
-传统的对抗生成网络模型的主要缺点在与模型的训练过程很难收敛，体现在具体的实验现象上就是模型的训练很耗时，比如DeepRoad使用的UNIT模型训练一组白天-夜晚的图像转换模型，在8核1080ti GPU的硬件资源下，耗时通常在一周左右，普遍高于其它一般的深度学习模型训练时长。对抗生成网络难收敛的主要原因有3点：1.　实际训练过程中，等式\eqref{eq:gan}中的生成器$G$可能会出现梯度消失的问题；2. 判别器$D$的损失函数一般为KL散度函数，文献\cite{arj}表明该函数在训练过程中很容易导致不收敛。
+传统的对抗生成网络模型的主要缺点在与模型的训练过程很难收敛，体现在具体的实验现象上就是模型的训练很耗时，比如DeepRoad使用的UNIT模型训练一组白天-夜晚的图像转换模型，在8核1080ti GPU的硬件资源下，耗时通常在一周左右，普遍高于其它一般的深度学习模型训练时长。对抗生成网络难收敛的主要原因有3点：1.　实际训练过程中，公式\eqref{eq:gan}中的生成器$G$可能会出现梯度消失的问题；2. 判别器$D$的损失函数一般为KL散度函数，文献\cite{arj}表明该函数在训练过程中很容易导致不收敛。
 
 \subsection{扩充与预处理风格数据集}
 
@@ -40,17 +40,17 @@
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.23\textwidth]{img-filter/1}
-    \includegraphics[width=0.23\textwidth]{img-filter/2}
-    \includegraphics[width=0.23\textwidth]{img-filter/3}
-    \includegraphics[width=0.23\textwidth]{img-filter/4}
-    \includegraphics[width=0.23\textwidth]{img-filter/5}
-    \includegraphics[width=0.23\textwidth]{img-filter/6}
-    \includegraphics[width=0.23\textwidth]{img-filter/7}
-    \includegraphics[width=0.23\textwidth]{img-filter/8}
+    \includegraphics[width=.24\textwidth]{img-filter/1}
+    \includegraphics[width=.24\textwidth]{img-filter/7}
+    \includegraphics[width=.24\textwidth]{img-filter/3}
+    % \includegraphics[width=.24\textwidth]{img-filter/4}
+    % \includegraphics[width=.24\textwidth]{img-filter/5}
+    % \includegraphics[width=.24\textwidth]{img-filter/6}
+    % \includegraphics[width=.24\textwidth]{img-filter/7}
+    \includegraphics[width=.24\textwidth]{img-filter/8}
     \caption{含有噪声的路况图片} 
     \label{fig-bads}
-\end{figure}
+\end{figure} 
 
 \subsection{筛选模型}
 
@@ -162,7 +162,7 @@ CycleGAN将对抗损失应用到了两个映射函数上，对于映射函数$G:
 \end{aligned}
 \end{equation}
 
-综合等式\ref{eq:2}和等式\ref{eq:3}我们可以得到总的目标函数:
+综合公式\ref{eq:2}和公式\ref{eq:3}我们可以得到总的目标函数:
 \begin{equation}
 \begin{aligned}
     L(G, F, D_X, D_Y) = & L_{GAN}(G,D_Y, X, Y) \\
@@ -183,7 +183,8 @@ CycleGAN对于内容图片通训练图片不相似的情况转换合成效果并
     \includegraphics[width=.24\textwidth]{models/CycleGAN/3}
     \includegraphics[width=.24\textwidth]{models/CycleGAN/4}
     \includegraphics[width=.24\textwidth]{models/CycleGAN/5}
-    \includegraphics[width=.24\textwidth]{models/CycleGAN/6}\includegraphics[width=.24\textwidth]{models/CycleGAN/7}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/6}
+    \includegraphics[width=.24\textwidth]{models/CycleGAN/7}
     \includegraphics[width=.24\textwidth]{models/CycleGAN/8}
     \caption{CycleGAN实验样例图}
     \label{fig:cyclegan}
